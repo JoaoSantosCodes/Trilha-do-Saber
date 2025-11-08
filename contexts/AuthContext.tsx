@@ -67,11 +67,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session)
       setUser(session?.user ?? null)
 
-      if (session?.user) {
+      if (session?.user && session?.access_token) {
         // Carregar perfil de forma não-bloqueante
+        // Só carregar se houver sessão válida com token
         loadProfile(session.user.id).catch(() => {
           // Ignorar erros de perfil, não bloquear o app
         })
+      } else {
+        // Se não houver sessão ou token, não tentar carregar perfil
+        setProfile(null)
       }
     } catch (error) {
       // Apenas logar em desenvolvimento
