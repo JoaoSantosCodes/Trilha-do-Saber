@@ -73,9 +73,9 @@ export function useAmizades() {
       } else {
         perfis = usersResult.data?.map((u: any) => ({
           id: u.id,
-          username: u.username,
-          full_name: u.name || u.full_name,
-          avatar_url: u.avatar_url
+          username: u.name?.split(' ')[0] || null,
+          full_name: u.name || null,
+          avatar_url: u.avatar_url || null
         })) || null
         errPerfis = usersResult.error
       }
@@ -220,9 +220,9 @@ export function useAmizades() {
       } else {
         perfis = usersResult.data?.map((u: any) => ({
           id: u.id,
-          username: u.username,
-          full_name: u.name || u.full_name,
-          avatar_url: u.avatar_url
+          username: u.name?.split(' ')[0] || null,
+          full_name: u.name || null,
+          avatar_url: u.avatar_url || null
         })) || null
         err = usersResult.error
       }
@@ -308,9 +308,9 @@ export function useAmizades() {
       } else {
         perfis = usersResult.data?.map((u: any) => ({
           id: u.id,
-          username: u.username,
-          full_name: u.name || u.full_name,
-          avatar_url: u.avatar_url
+          username: u.name?.split(' ')[0] || null,
+          full_name: u.name || null,
+          avatar_url: u.avatar_url || null
         })) || null
         errPerfis = usersResult.error
       }

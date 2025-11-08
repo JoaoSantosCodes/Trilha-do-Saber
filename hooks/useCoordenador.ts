@@ -41,19 +41,29 @@ export function useCoordenador() {
       setError(null)
 
       // 1. Buscar total de professores
-      const { count: totalProfessores, error: errProf } = await supabase
-        .from('professores')
+      // Tentar teachers primeiro, depois professores (fallback)
+      let totalProfessores = 0
+      let professoresAtivos = 0
+      
+      const teachersResult = await supabase
+        .from('teachers')
         .select('*', { count: 'exact', head: true })
 
-      if (errProf) throw errProf
-
-      // 2. Buscar professores ativos
-      const { count: professoresAtivos, error: errProfAtivos } = await supabase
-        .from('professores')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'ativo')
-
-      if (errProfAtivos) throw errProfAtivos
+      if (teachersResult.error && teachersResult.error.message?.includes('does not exist')) {
+        const professoresResult = await supabase
+          .from('professores')
+          .select('*', { count: 'exact', head: true })
+        totalProfessores = professoresResult.count || 0
+        
+        const professoresAtivosResult = await supabase
+          .from('professores')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'ativo')
+        professoresAtivos = professoresAtivosResult.count || 0
+      } else {
+        totalProfessores = teachersResult.count || 0
+        professoresAtivos = totalProfessores // teachers não tem status, considerar todos ativos
+      }
 
       // 3. Buscar total de turmas
       const { count: totalTurmas, error: errTurmas } = await supabase
@@ -71,11 +81,21 @@ export function useCoordenador() {
       if (errTurmasAtivas) throw errTurmasAtivas
 
       // 5. Buscar total de alunos
-      const { count: totalAlunos, error: errAlunos } = await supabase
-        .from('alunos')
+      // Tentar students primeiro, depois alunos (fallback)
+      let totalAlunos = 0
+      
+      const studentsResult = await supabase
+        .from('students')
         .select('*', { count: 'exact', head: true })
 
-      if (errAlunos) throw errAlunos
+      if (studentsResult.error && studentsResult.error.message?.includes('does not exist')) {
+        const alunosResult = await supabase
+          .from('alunos')
+          .select('*', { count: 'exact', head: true })
+        totalAlunos = alunosResult.count || 0
+      } else {
+        totalAlunos = studentsResult.count || 0
+      }
 
       // 6. Buscar alunos ativos (que estão em turmas ativas)
       const { data: alunoTurmas, error: errAlunoTurmas } = await supabase
