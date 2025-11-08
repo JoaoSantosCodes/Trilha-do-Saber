@@ -257,6 +257,19 @@ export async function getProfile(userId: string) {
       return { profile: null, error: null }
     }
 
+    // Verificar se o usuário existe em auth.users antes de fazer query
+    // Isso evita erros 404 se o usuário não existir
+    try {
+      const { data: authUser, error: authError } = await supabase.auth.getUser()
+      if (authError || !authUser?.user || authUser.user.id !== userId) {
+        // Se o usuário não existir ou não corresponder, retornar null sem fazer query
+        return { profile: null, error: null }
+      }
+    } catch (authErr: any) {
+      // Se houver erro ao verificar usuário, retornar null sem fazer query
+      return { profile: null, error: null }
+    }
+
     // Tentar buscar de 'users' primeiro
     // Usar maybeSingle() para não gerar erro se não encontrar (evita 404 no console)
     // Mas mesmo assim, o navegador pode mostrar 404 se o RLS bloquear
