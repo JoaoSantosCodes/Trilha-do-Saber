@@ -245,7 +245,7 @@ export async function getProfile(userId: string) {
     // Tentar buscar de 'users' primeiro (tabela que existe)
     let { data, error } = await supabase
       .from('users')
-      .select('*')
+      .select('id, email, name, role, avatar_url, created_at, updated_at')
       .eq('id', userId)
       .single()
 

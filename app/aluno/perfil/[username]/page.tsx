@@ -97,8 +97,8 @@ export default function PerfilPublicoPage() {
       
       const usersResult = await supabase
         .from('users')
-        .select('id, username, name as full_name, avatar_url, role')
-        .or(`username.eq.${username},id.eq.${username}`)
+        .select('id, name, avatar_url, role')
+        .or(`name.ilike.%${username}%,id.eq.${username}`)
         .eq('role', 'student')
         .single()
 
@@ -114,9 +114,9 @@ export default function PerfilPublicoPage() {
       } else {
         profile = usersResult.data ? {
           id: usersResult.data.id,
-          username: usersResult.data.username,
-          full_name: usersResult.data.name || usersResult.data.full_name,
-          avatar_url: usersResult.data.avatar_url
+          username: usersResult.data.name?.split(' ')[0] || null,
+          full_name: usersResult.data.name || null,
+          avatar_url: usersResult.data.avatar_url || null
         } : null
         profileError = usersResult.error
       }

@@ -74,8 +74,7 @@ export async function POST(request: NextRequest) {
         id: userId, 
         email: email.trim(),
         name: nome.trim(),
-        role: 'student',
-        username: email.split('@')[0]
+        role: 'student'
       }, { onConflict: 'id' })
 
     if (usersResult.error && usersResult.error.message?.includes('does not exist')) {

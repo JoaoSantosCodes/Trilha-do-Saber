@@ -47,7 +47,7 @@ export default function AlunoDetalhesPage() {
       
       const usersResult = await supabase
         .from('users')
-        .select('id, name as full_name, username, avatar_url, role')
+        .select('id, name, avatar_url, role')
         .eq('id', alunoId)
         .eq('role', 'student')
         .single()
@@ -64,9 +64,9 @@ export default function AlunoDetalhesPage() {
       } else {
         perfil = usersResult.data ? {
           id: usersResult.data.id,
-          full_name: usersResult.data.name || usersResult.data.full_name,
-          username: usersResult.data.username,
-          avatar_url: usersResult.data.avatar_url
+          full_name: usersResult.data.name || null,
+          username: usersResult.data.name?.split(' ')[0] || null,
+          avatar_url: usersResult.data.avatar_url || null
         } : null
         errPerfil = usersResult.error
       }

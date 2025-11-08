@@ -68,7 +68,7 @@ export function useChat(conversaId?: string) {
       
       const usersResult = await supabase
         .from('users')
-        .select('id, name as full_name, username, avatar_url')
+        .select('id, name, avatar_url')
         .eq('id', outroParticipanteId)
         .single()
 
@@ -83,9 +83,9 @@ export function useChat(conversaId?: string) {
       } else {
         perfilOutro = usersResult.data ? {
           id: usersResult.data.id,
-          full_name: usersResult.data.name || usersResult.data.full_name,
-          username: usersResult.data.username,
-          avatar_url: usersResult.data.avatar_url
+          full_name: usersResult.data.name || null,
+          username: usersResult.data.name?.split(' ')[0] || null,
+          avatar_url: usersResult.data.avatar_url || null
         } : null
         errPerfil = usersResult.error
       }
@@ -127,7 +127,7 @@ export function useChat(conversaId?: string) {
       
       const usersResult = await supabase
         .from('users')
-        .select('id, name as full_name, username, avatar_url')
+        .select('id, name, avatar_url')
         .in('id', remetentesIds)
 
       if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
@@ -140,9 +140,9 @@ export function useChat(conversaId?: string) {
       } else {
         perfis = usersResult.data?.map((u: any) => ({
           id: u.id,
-          full_name: u.name || u.full_name,
-          username: u.username,
-          avatar_url: u.avatar_url
+          full_name: u.name || null,
+          username: u.name?.split(' ')[0] || null,
+          avatar_url: u.avatar_url || null
         })) || null
         errPerfis = usersResult.error
       }
@@ -199,7 +199,7 @@ export function useChat(conversaId?: string) {
       
       const usersResult = await supabase
         .from('users')
-        .select('id, name as full_name, username, avatar_url')
+        .select('id, name, avatar_url')
         .eq('id', user.id)
         .single()
 
@@ -213,9 +213,9 @@ export function useChat(conversaId?: string) {
       } else {
         perfil = usersResult.data ? {
           id: usersResult.data.id,
-          full_name: usersResult.data.name || usersResult.data.full_name,
-          username: usersResult.data.username,
-          avatar_url: usersResult.data.avatar_url
+          full_name: usersResult.data.name || null,
+          username: usersResult.data.name?.split(' ')[0] || null,
+          avatar_url: usersResult.data.avatar_url || null
         } : null
       }
 
@@ -297,7 +297,7 @@ export function useChat(conversaId?: string) {
           
           const usersResult = await supabase
             .from('users')
-            .select('id, name as full_name, username, avatar_url')
+            .select('id, name, avatar_url')
             .eq('id', novaMensagem.remetente_id)
             .single()
 
@@ -311,9 +311,9 @@ export function useChat(conversaId?: string) {
           } else {
             perfil = usersResult.data ? {
               id: usersResult.data.id,
-              full_name: usersResult.data.name || usersResult.data.full_name,
-              username: usersResult.data.username,
-              avatar_url: usersResult.data.avatar_url
+              full_name: usersResult.data.name || null,
+              username: usersResult.data.name?.split(' ')[0] || null,
+              avatar_url: usersResult.data.avatar_url || null
             } : null
           }
 

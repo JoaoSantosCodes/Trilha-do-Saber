@@ -51,7 +51,7 @@ export default function NovaTurmaPage() {
       
       const usersResult = await supabase
         .from('users')
-        .select('id, name as full_name, username, role')
+        .select('id, name, role')
         .in('id', professoresIds)
         .eq('role', 'teacher')
 
@@ -66,8 +66,8 @@ export default function NovaTurmaPage() {
       } else {
         perfis = usersResult.data?.map((u: any) => ({
           id: u.id,
-          full_name: u.name || u.full_name,
-          username: u.username
+          full_name: u.name || null,
+          username: u.name?.split(' ')[0] || null
         })) || null
         errPerfis = usersResult.error
       }

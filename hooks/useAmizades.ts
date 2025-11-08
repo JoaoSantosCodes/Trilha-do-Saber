@@ -60,7 +60,7 @@ export function useAmizades() {
       
       const usersResult = await supabase
         .from('users')
-        .select('id, username, name as full_name, avatar_url')
+        .select('id, name, avatar_url')
         .in('id', amigosIds)
 
       if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
@@ -201,10 +201,10 @@ export function useAmizades() {
       
       const usersResult = await supabase
         .from('users')
-        .select('id, username, name as full_name, avatar_url, role')
+        .select('id, name, avatar_url, role')
         .eq('role', 'student')
         .neq('id', user.id)
-        .or(`username.ilike.%${termo}%,name.ilike.%${termo}%`)
+        .ilike('name', `%${termo}%`)
         .limit(20)
 
       if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
@@ -295,7 +295,7 @@ export function useAmizades() {
       
       const usersResult = await supabase
         .from('users')
-        .select('id, username, name as full_name, avatar_url')
+        .select('id, name, avatar_url')
         .in('id', solicitantesIds)
 
       if (usersResult.error && usersResult.error.message?.includes('does not exist')) {

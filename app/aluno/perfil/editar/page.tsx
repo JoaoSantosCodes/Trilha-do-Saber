@@ -123,7 +123,7 @@ export default function EditarPerfilPage() {
         
         const usersResult = await supabase
           .from('users')
-          .update({ username })
+          .update({ name: username }) // users não tem username, usar name
           .eq('id', profile.id)
 
         if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
