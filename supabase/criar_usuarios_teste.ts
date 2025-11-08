@@ -11,11 +11,17 @@
 
 import { createClient } from '@supabase/supabase-js'
 import * as dotenv from 'dotenv'
-import * as path from 'path'
+import { resolve } from 'path'
 
 // Carregar variáveis de ambiente
-dotenv.config({ path: path.join(process.cwd(), '.env.local') })
+const envPath = resolve(process.cwd(), '.env.local')
+const result = dotenv.config({ path: envPath })
 
+if (result.error) {
+  console.warn('⚠️  Aviso: Erro ao carregar .env.local:', result.error.message)
+}
+
+// Debug: verificar se as variáveis foram carregadas
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -24,6 +30,12 @@ if (!supabaseUrl || !supabaseServiceKey) {
   console.error('Certifique-se de que .env.local contém:')
   console.error('- NEXT_PUBLIC_SUPABASE_URL')
   console.error('- SUPABASE_SERVICE_ROLE_KEY')
+  console.error('')
+  console.error('📋 Debug:')
+  console.error(`   Arquivo .env.local existe: ${require('fs').existsSync(envPath)}`)
+  console.error(`   Caminho: ${envPath}`)
+  console.error(`   NEXT_PUBLIC_SUPABASE_URL: ${supabaseUrl ? '✅ Configurado' : '❌ Não configurado'}`)
+  console.error(`   SUPABASE_SERVICE_ROLE_KEY: ${supabaseServiceKey ? '✅ Configurado' : '❌ Não configurado'}`)
   process.exit(1)
 }
 
