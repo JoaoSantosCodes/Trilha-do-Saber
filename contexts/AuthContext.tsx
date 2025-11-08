@@ -64,7 +64,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe()
     }
-  }, [isLoadingProfile])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const checkSession = async () => {
     try {
