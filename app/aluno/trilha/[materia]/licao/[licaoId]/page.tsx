@@ -195,70 +195,71 @@ export default function LicaoInterativaPage() {
 
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-dark text-text-dark overflow-x-hidden">
-      <main className="flex flex-1 flex-col px-4 pt-4 pb-32">
+      <main className="flex flex-1 flex-col px-3 sm:px-4 pt-3 sm:pt-4 pb-28 sm:pb-32 safe-area-top">
         {/* Header com Progresso e Vidas */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={() => router.back()}
-            className="flex items-center justify-center h-10 w-10"
+            className="flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 touch-manipulation active:opacity-70"
+            aria-label="Fechar"
           >
-            <span className="material-symbols-outlined text-3xl text-text-dark/60">
+            <span className="material-symbols-outlined text-2xl sm:text-3xl text-text-dark/60">
               close
             </span>
           </button>
           <div className="flex-1">
-            <div className="h-4 w-full rounded-full bg-surface-dark">
+            <div className="h-3 sm:h-4 w-full rounded-full bg-surface-dark">
               <div
-                className="h-4 rounded-full bg-primary shadow-[0_0_10px_rgba(37,244,106,0.7)] transition-all duration-300"
+                className="h-3 sm:h-4 rounded-full bg-primary shadow-[0_0_10px_rgba(37,244,106,0.7)] transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
           </div>
           <div className="flex items-center gap-1 text-error">
             <span
-              className="material-symbols-outlined text-2xl"
+              className="material-symbols-outlined text-xl sm:text-2xl"
               style={{ textShadow: '0 0 8px rgba(255, 77, 77, 0.7)' }}
             >
               favorite
             </span>
-            <span className="font-bold text-lg">{lives}</span>
+            <span className="font-bold text-base sm:text-lg">{lives}</span>
           </div>
         </div>
 
         {/* Conteúdo da Lição */}
         <div className="flex-1 flex flex-col justify-center">
           {/* Pergunta com Mascote */}
-          <div className="flex items-start gap-4 mt-8">
+          <div className="flex items-start gap-2 sm:gap-4 mt-6 sm:mt-8">
             <Image
-              className="h-20 w-20"
+              className="h-16 w-16 sm:h-20 sm:w-20 shrink-0"
               alt="Mascote Coruja sorrindo"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOplSmJ012e45daI8E2b2IuS-dYElKt0QX3w3AW81Dm2UKPgvAq1_CRqUxXP3TJl8QLwOxlMcarCLAlBJtXPD5W3zOQPBnNEL_e0gqwyTZ452-DGYlLbw5e11fh-6Orzwkm7W675HFZcIX1kL-WsusCtiCsh9R-JCyBbdSMJPV_Wmkrjl7E3NljIS-DMcSseOmEg3ZMqsP8SqlEGHELED0Qrvaba2MzFE15lMk7XLhTp0ciLVKOBezlPZPKSGY2U-TBmWBzmf9Wjvl"
               width={80}
               height={80}
               unoptimized
             />
-            <div className="relative mt-2 rounded-lg border border-border-dark bg-surface-dark p-4">
-              <div className="absolute -left-2 top-4 h-4 w-4 rotate-45 border-l border-b border-border-dark bg-surface-dark" />
-              <h1 className="text-xl font-bold leading-tight text-text-dark">
+            <div className="relative mt-2 rounded-lg border border-border-dark bg-surface-dark p-3 sm:p-4 flex-1 min-w-0">
+              <div className="absolute -left-1.5 sm:-left-2 top-3 sm:top-4 h-3 w-3 sm:h-4 sm:w-4 rotate-45 border-l border-b border-border-dark bg-surface-dark" />
+              <h1 className="text-base sm:text-xl font-bold leading-tight text-text-dark break-words">
                 {currentQuestion.texto}
               </h1>
               {currentQuestion.mensagem_mascote && (
-                <p className="text-text-dark/70 text-sm mt-2">{currentQuestion.mensagem_mascote}</p>
+                <p className="text-text-dark/70 text-xs sm:text-sm mt-1.5 sm:mt-2 break-words">{currentQuestion.mensagem_mascote}</p>
               )}
             </div>
           </div>
 
           {/* Opções de Resposta */}
-          <div className="grid grid-cols-2 gap-4 mt-12 w-full max-w-md mx-auto">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 mt-8 sm:mt-12 w-full max-w-md mx-auto px-2 sm:px-0">
             {currentQuestion.opcoes.map((opcao) => (
               <button
                 key={opcao.id}
                 onClick={() => handleAnswerSelect(opcao.id)}
                 disabled={showFeedback || lives === 0}
-                className={`flex h-28 cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-lg border-2 p-4 text-lg font-bold text-text-dark transition-all ${
+                className={`flex h-24 sm:h-28 cursor-pointer flex-col items-center justify-center gap-1 sm:gap-2 overflow-hidden rounded-lg border-2 p-2 sm:p-4 text-sm sm:text-lg font-bold text-text-dark transition-all touch-manipulation active:scale-95 ${
                   selectedAnswer === opcao.id
                     ? 'border-primary/50 bg-primary/20'
-                    : 'border-border-dark bg-surface-dark hover:bg-primary/20 focus:border-primary/50'
+                    : 'border-border-dark bg-surface-dark hover:bg-primary/20 focus:border-primary/50 active:bg-primary/20'
                 } ${
                   showFeedback && opcao.correta
                     ? 'border-green-500 bg-green-500/20'
@@ -271,8 +272,8 @@ export default function LicaoInterativaPage() {
                     : ''
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {opcao.emoji && <span className="text-3xl">{opcao.emoji}</span>}
-                <span>{opcao.texto}</span>
+                {opcao.emoji && <span className="text-2xl sm:text-3xl">{opcao.emoji}</span>}
+                <span className="text-center break-words line-clamp-2">{opcao.texto}</span>
               </button>
             ))}
           </div>
@@ -281,8 +282,8 @@ export default function LicaoInterativaPage() {
 
       {/* Mascote de Incentivo */}
       {!showFeedback && (
-        <div className="fixed bottom-[148px] left-4 z-10">
-          <div className="relative w-40">
+        <div className="fixed bottom-[120px] sm:bottom-[148px] left-2 sm:left-4 z-10 hidden sm:block">
+          <div className="relative w-32 sm:w-40">
             <Image
               className="h-auto w-full"
               alt="Mascote Coruja com placa 'Você Consegue!'"
@@ -291,33 +292,33 @@ export default function LicaoInterativaPage() {
               height={160}
               unoptimized
             />
-            <div className="absolute -top-6 -right-2 transform -rotate-12">
-              <div className="bg-white text-gray-800 font-bold text-sm px-3 py-1.5 rounded-lg shadow-lg -rotate-6">
+            <div className="absolute -top-4 sm:-top-6 -right-1 sm:-right-2 transform -rotate-12">
+              <div className="bg-white text-gray-800 font-bold text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg shadow-lg -rotate-6">
                 <p>Você consegue!</p>
               </div>
-              <div className="absolute bottom-0 left-1/2 w-3 h-3 bg-white transform -translate-x-1/2 translate-y-1/2 rotate-45" />
+              <div className="absolute bottom-0 left-1/2 w-2 h-2 sm:w-3 sm:h-3 bg-white transform -translate-x-1/2 translate-y-1/2 rotate-45" />
             </div>
           </div>
         </div>
       )}
 
       {/* Footer com Feedback e Botão */}
-      <footer className="fixed bottom-0 left-0 w-full">
+      <footer className="fixed bottom-0 left-0 w-full safe-area-bottom">
         {showFeedback && (
           <div
-            className={`p-6 ${
+            className={`p-4 sm:p-6 ${
               isCorrect ? 'bg-success/20 text-success' : 'bg-error/20 text-error'
             }`}
           >
-            <div className="flex items-center gap-4 max-w-xl mx-auto">
-              <span className="material-symbols-outlined text-3xl font-bold">
+            <div className="flex items-center gap-3 sm:gap-4 max-w-xl mx-auto">
+              <span className="material-symbols-outlined text-2xl sm:text-3xl font-bold shrink-0">
                 {isCorrect ? 'check_circle' : 'cancel'}
               </span>
-              <div>
-                <h2 className="font-bold text-lg">
+              <div className="min-w-0 flex-1">
+                <h2 className="font-bold text-base sm:text-lg">
                   {isCorrect ? 'Correto!' : 'Incorreto'}
                 </h2>
-                <p className="text-sm">
+                <p className="text-xs sm:text-sm break-words">
                   {isCorrect
                     ? 'Bom trabalho!'
                     : 'Tente novamente. Você consegue!'}
@@ -326,19 +327,19 @@ export default function LicaoInterativaPage() {
             </div>
           </div>
         )}
-        <div className="px-4 py-3 border-t border-border-dark bg-surface-dark">
-          <div className="flex gap-3 max-w-xl mx-auto">
+        <div className="px-3 sm:px-4 py-2.5 sm:py-3 border-t border-border-dark bg-surface-dark">
+          <div className="flex gap-2 sm:gap-3 max-w-xl mx-auto">
             <Button
               onClick={handleSkip}
               disabled={showFeedback || lives === 0}
-              className="flex-1 bg-gray-600 text-white h-12 disabled:opacity-50"
+              className="flex-1 bg-gray-600 text-white h-11 sm:h-12 text-sm sm:text-base disabled:opacity-50 touch-manipulation"
             >
               Pular
             </Button>
             <Button
               onClick={showFeedback ? handleNext : handleVerify}
               disabled={selectedAnswer === null || lives === 0}
-              className="flex-1 bg-primary text-background-dark h-12 shadow-[0_0_15px_rgba(37,244,106,0.6)] disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none"
+              className="flex-1 bg-primary text-background-dark h-11 sm:h-12 text-sm sm:text-base shadow-[0_0_15px_rgba(37,244,106,0.6)] disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none touch-manipulation"
             >
               {showFeedback
                 ? currentQuestionIndex < licao.questoes.length - 1
