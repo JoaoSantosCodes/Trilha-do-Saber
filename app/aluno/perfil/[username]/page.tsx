@@ -191,35 +191,36 @@ export default function PerfilPublicoPage() {
       />
 
       {/* Top App Bar */}
-      <div className="relative flex items-center p-4 pb-2 justify-between z-10">
+      <div className="relative flex items-center p-3 sm:p-4 pb-2 justify-between z-10 safe-area-top">
         <button
           onClick={() => router.back()}
-          className="text-white flex size-10 shrink-0 items-center justify-center bg-black/20 rounded-full"
+          className="text-white flex size-10 shrink-0 items-center justify-center bg-black/20 rounded-full touch-manipulation active:opacity-70"
+          aria-label="Voltar"
         >
-          <span className="material-symbols-outlined text-2xl">arrow_back</span>
+          <span className="material-symbols-outlined text-xl sm:text-2xl">arrow_back</span>
         </button>
         <div className="flex items-center gap-2">
-          <button className="text-white flex size-10 shrink-0 items-center justify-center bg-black/20 rounded-full">
-            <span className="material-symbols-outlined text-2xl">share</span>
+          <button className="text-white flex size-10 shrink-0 items-center justify-center bg-black/20 rounded-full touch-manipulation active:opacity-70" aria-label="Compartilhar">
+            <span className="material-symbols-outlined text-xl sm:text-2xl">share</span>
           </button>
-          <button className="text-white flex size-10 shrink-0 items-center justify-center bg-black/20 rounded-full">
-            <span className="material-symbols-outlined text-2xl">more_vert</span>
+          <button className="text-white flex size-10 shrink-0 items-center justify-center bg-black/20 rounded-full touch-manipulation active:opacity-70" aria-label="Mais opções">
+            <span className="material-symbols-outlined text-xl sm:text-2xl">more_vert</span>
           </button>
         </div>
       </div>
 
       {/* Profile Header */}
-      <div className="relative flex p-4 pt-0 z-10">
-        <div className="flex w-full flex-col gap-4 items-center">
-          <div className="flex gap-4 flex-col items-center">
+      <div className="relative flex p-3 sm:p-4 pt-0 z-10">
+        <div className="flex w-full flex-col gap-3 sm:gap-4 items-center">
+          <div className="flex gap-3 sm:gap-4 flex-col items-center">
             <div
-              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 border-4 border-primary/80"
+              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-24 w-24 sm:min-h-32 sm:w-32 border-3 sm:border-4 border-primary/80"
               style={{
                 backgroundImage: perfil.avatar_url ? `url('${perfil.avatar_url}')` : undefined,
                 backgroundColor: perfil.cor_fundo_perfil || '#E57373',
               }}
             />
-            <p className="text-white text-2xl font-bold leading-tight tracking-[-0.015em] text-center">
+            <p className="text-white text-xl sm:text-2xl font-bold leading-tight tracking-[-0.015em] text-center px-2">
               {perfil.username || perfil.full_name || 'Aluno'}
             </p>
           </div>
@@ -227,13 +228,13 @@ export default function PerfilPublicoPage() {
             <Button
               onClick={handleAddFriend}
               disabled={isFriend || isAddingFriend}
-              className="flex min-w-[84px] items-center justify-center gap-2 overflow-hidden rounded-full h-12 px-6 bg-primary text-background-dark text-base font-bold leading-normal tracking-[0.015em] w-full max-w-[480px] shadow-lg shadow-primary/30 disabled:opacity-50"
+              className="flex min-w-[84px] items-center justify-center gap-2 overflow-hidden rounded-full h-12 px-4 sm:px-6 bg-primary text-background-dark text-sm sm:text-base font-bold leading-normal tracking-[0.015em] w-full max-w-[480px] shadow-lg shadow-primary/30 disabled:opacity-50 touch-manipulation"
             >
               {isAddingFriend ? (
-                <span className="material-symbols-outlined animate-spin">refresh</span>
+                <span className="material-symbols-outlined animate-spin text-lg sm:text-xl">refresh</span>
               ) : (
                 <>
-                  <span className="material-symbols-outlined mr-2">person_add</span>
+                  <span className="material-symbols-outlined mr-1 sm:mr-2 text-lg sm:text-xl">person_add</span>
                   <span className="truncate">
                     {isFriend ? 'Já é Amigo' : 'Adicionar Amigo'}
                   </span>
@@ -245,20 +246,20 @@ export default function PerfilPublicoPage() {
       </div>
 
       {/* Stats Section */}
-      <div className="flex flex-wrap gap-4 p-4">
-        <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 bg-gray-500/10 border border-white/10">
+      <div className="flex flex-wrap gap-3 sm:gap-4 p-3 sm:p-4">
+        <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-3 sm:p-4 bg-gray-500/10 border border-white/10">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-xl">star</span>
-            <p className="text-gray-300 text-sm font-medium leading-normal">Total de Pontos (XP)</p>
+            <span className="material-symbols-outlined text-primary text-lg sm:text-xl">star</span>
+            <p className="text-gray-300 text-xs sm:text-sm font-medium leading-normal truncate">Total de Pontos (XP)</p>
           </div>
-          <p className="text-white tracking-light text-3xl font-bold leading-tight">
+          <p className="text-white tracking-light text-2xl sm:text-3xl font-bold leading-tight">
             {perfil.pontos.toLocaleString('pt-BR')}
           </p>
         </div>
-        <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 bg-gray-500/10 border border-white/10">
+        <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-3 sm:p-4 bg-gray-500/10 border border-white/10">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-xl">emoji_events</span>
-            <p className="text-gray-300 text-sm font-medium leading-normal">Divisão no Ranking</p>
+            <span className="material-symbols-outlined text-primary text-lg sm:text-xl">emoji_events</span>
+            <p className="text-gray-300 text-xs sm:text-sm font-medium leading-normal truncate">Divisão no Ranking</p>
           </div>
           <p className="text-white tracking-light text-lg font-bold leading-tight">
             {perfil.pontos >= 5000 ? 'Divisão Ouro' : perfil.pontos >= 2000 ? 'Divisão Prata' : 'Divisão Bronze'}

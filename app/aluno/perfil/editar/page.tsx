@@ -216,26 +216,27 @@ export default function EditarPerfilPage() {
           </section>
 
           {/* Personalization Section */}
-          <section className="py-4">
-            <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] pb-4">
+          <section className="py-3 sm:py-4">
+            <h2 className="text-white text-base sm:text-lg font-bold leading-tight tracking-[-0.015em] pb-3 sm:pb-4">
               Personalize seu Perfil
             </h2>
             {/* Background Color Picker */}
-            <div className="mb-6">
-              <h3 className="text-base font-medium leading-normal text-white/80 pb-3">
+            <div className="mb-4 sm:mb-6">
+              <h3 className="text-sm sm:text-base font-medium leading-normal text-white/80 pb-2 sm:pb-3">
                 Cor de Fundo do Perfil
               </h3>
-              <div className="grid grid-cols-5 gap-4">
+              <div className="grid grid-cols-5 gap-3 sm:gap-4">
                 {backgroundColors.map((color) => (
                   <button
                     key={color.id}
                     onClick={() => setSelectedBgColor(color.id)}
-                    className={`aspect-square w-full rounded-full transition-transform hover:scale-110 ${
+                    className={`aspect-square w-full rounded-full transition-transform hover:scale-110 active:scale-95 touch-manipulation ${
                       selectedBgColor === color.id
                         ? 'ring-2 ring-offset-2 ring-offset-background-dark ring-primary'
                         : ''
                     }`}
                     style={{ backgroundColor: color.color }}
+                    aria-label={`Cor ${color.id}`}
                   />
                 ))}
               </div>

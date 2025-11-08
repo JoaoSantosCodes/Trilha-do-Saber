@@ -68,13 +68,13 @@ export default function PerfilAlunoPage() {
     <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-dark overflow-x-hidden text-text-dark">
       <Header showBack title="Perfil" />
 
-      <div className="flex p-4">
-        <div className="flex w-full flex-col gap-4 items-center">
+      <div className="flex p-3 sm:p-4">
+        <div className="flex w-full flex-col gap-3 sm:gap-4 items-center">
           {/* Avatar e Informações */}
-          <div className="flex gap-4 flex-col items-center">
+          <div className="flex gap-3 sm:gap-4 flex-col items-center">
             <div className="relative">
               <div
-                className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-32 w-32 border-4 border-card-dark shadow-md"
+                className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-24 w-24 sm:h-32 sm:w-32 border-3 sm:border-4 border-card-dark shadow-md"
                 style={{
                   backgroundImage: `url('${avatarUrl}')`,
                   backgroundColor: aluno?.cor_fundo_perfil || '#E57373',
@@ -84,20 +84,21 @@ export default function PerfilAlunoPage() {
               />
               <button
                 onClick={() => router.push('/aluno/perfil/editar')}
-                className="absolute bottom-0 right-0 flex items-center justify-center h-10 w-10 bg-brand-pink rounded-full text-card-dark border-2 border-background-dark hover:bg-brand-pink/90 transition-colors"
+                className="absolute bottom-0 right-0 flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 bg-brand-pink rounded-full text-card-dark border-2 border-background-dark hover:bg-brand-pink/90 active:bg-brand-pink/80 transition-colors touch-manipulation"
+                aria-label="Editar perfil"
               >
-                <span className="material-symbols-outlined text-xl">edit</span>
+                <span className="material-symbols-outlined text-lg sm:text-xl">edit</span>
               </button>
             </div>
             <div className="flex flex-col items-center justify-center">
-              <p className="text-[22px] font-bold leading-tight tracking-[-0.015em] text-center">
+              <p className="text-lg sm:text-[22px] font-bold leading-tight tracking-[-0.015em] text-center px-2">
                 {loading ? 'Carregando...' : nomeUsuario}
               </p>
               <div className="flex items-center gap-1">
-                <span className="material-symbols-outlined text-profile-secondary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                <span className="material-symbols-outlined text-profile-secondary text-lg sm:text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                   star
                 </span>
-                <p className="text-profile-secondary text-base font-bold leading-normal text-center">
+                <p className="text-profile-secondary text-sm sm:text-base font-bold leading-normal text-center">
                   {pontos.toLocaleString('pt-BR')} Pontos
                 </p>
               </div>
@@ -107,34 +108,34 @@ export default function PerfilAlunoPage() {
       </div>
 
       {/* Tabs */}
-      <div className="px-4 pb-2">
-        <div className="flex gap-2 border-b border-card-dark">
+      <div className="px-3 sm:px-4 pb-2">
+        <div className="flex gap-1 sm:gap-2 border-b border-card-dark overflow-x-auto smooth-scroll">
           <button
             onClick={() => setView('conquistas')}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors touch-manipulation whitespace-nowrap ${
               view === 'conquistas'
                 ? 'text-brand-cyan border-b-2 border-brand-cyan'
-                : 'text-text-dark/60 hover:text-text-dark'
+                : 'text-text-dark/60 hover:text-text-dark active:text-text-dark'
             }`}
           >
             Conquistas
           </button>
           <button
             onClick={() => setView('trilha')}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors touch-manipulation whitespace-nowrap ${
               view === 'trilha'
                 ? 'text-brand-cyan border-b-2 border-brand-cyan'
-                : 'text-text-dark/60 hover:text-text-dark'
+                : 'text-text-dark/60 hover:text-text-dark active:text-text-dark'
             }`}
           >
             Trilha
           </button>
           <button
             onClick={() => setView('amigos')}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors touch-manipulation whitespace-nowrap ${
               view === 'amigos'
                 ? 'text-brand-cyan border-b-2 border-brand-cyan'
-                : 'text-text-dark/60 hover:text-text-dark'
+                : 'text-text-dark/60 hover:text-text-dark active:text-text-dark'
             }`}
           >
             Amigos
@@ -142,18 +143,18 @@ export default function PerfilAlunoPage() {
         </div>
       </div>
 
-      <div className="px-4 py-2 space-y-6 flex-1 overflow-y-auto">
+      <div className="px-3 sm:px-4 py-2 space-y-4 sm:space-y-6 flex-1 overflow-y-auto smooth-scroll">
         {/* View: Conquistas */}
         {view === 'conquistas' && (
           <>
-            <div className="bg-card-dark rounded-lg shadow-sm p-4">
-              <h3 className="text-lg font-bold leading-tight tracking-[-0.015em] pb-4 text-text-dark">
+            <div className="bg-card-dark rounded-lg shadow-sm p-3 sm:p-4">
+              <h3 className="text-base sm:text-lg font-bold leading-tight tracking-[-0.015em] pb-3 sm:pb-4 text-text-dark">
                 Minhas Conquistas
               </h3>
               {loadingConquistas ? (
-                <LoadingSkeleton type="grid" count={6} className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-4" />
+                <LoadingSkeleton type="grid" count={6} className="grid grid-cols-[repeat(auto-fill,minmax(70px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-3 sm:gap-4" />
               ) : (
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-4">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(70px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-3 sm:gap-4">
                   {conquistas.length > 0 ? (
                     conquistas.map((conquista) => {
                       const gradient = conquista.cor_gradiente || 'from-yellow-300 to-amber-500'
@@ -164,25 +165,25 @@ export default function PerfilAlunoPage() {
                             !conquista.desbloqueada ? 'opacity-40' : ''
                           }`}
                         >
-                          <div className={`p-3 rounded-full ${
+                          <div className={`p-2 sm:p-3 rounded-full ${
                             conquista.desbloqueada
                               ? `bg-gradient-to-br ${gradient}`
                               : 'bg-gray-700'
                           }`}>
                             {conquista.desbloqueada ? (
                               <span
-                                className="material-symbols-outlined text-4xl text-white"
+                                className="material-symbols-outlined text-3xl sm:text-4xl text-white"
                                 style={{ fontVariationSettings: "'FILL' 1, 'wght' 600" }}
                               >
                                 {conquista.icone}
                               </span>
                             ) : (
-                              <span className="material-symbols-outlined text-3xl text-slate-400">
+                              <span className="material-symbols-outlined text-2xl sm:text-3xl text-slate-400">
                                 lock
                               </span>
                             )}
                           </div>
-                          <p className="text-sm font-medium leading-normal text-text-dark">
+                          <p className="text-xs sm:text-sm font-medium leading-normal text-text-dark text-center">
                             {conquista.nome}
                           </p>
                         </div>

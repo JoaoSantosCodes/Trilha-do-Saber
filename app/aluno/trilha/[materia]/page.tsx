@@ -83,11 +83,11 @@ export default function TrilhaPage() {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background-dark/80 via-background-dark/20 to-transparent z-0" />
 
-        <div className="relative z-10 p-4 flex flex-col items-center min-h-full">
+        <div className="relative z-10 p-3 sm:p-4 flex flex-col items-center min-h-full">
           {/* Final Challenge */}
           {finalChallenge && (
             <div
-              className="mt-4"
+              className="mt-3 sm:mt-4"
               style={{
                 position: 'absolute',
                 top: finalChallenge.posicao_top || '5%',
@@ -97,23 +97,23 @@ export default function TrilhaPage() {
             >
               <button
                 onClick={handleChallengeClick}
-                className="flex items-center justify-center p-4 rounded-xl shadow-lg shadow-primary/50 border-2"
+                className="flex items-center justify-center p-3 sm:p-4 rounded-xl shadow-lg shadow-primary/50 border-2 touch-manipulation active:opacity-80"
                 style={{
                   backgroundColor: `${primaryColor}30`,
                   borderColor: primaryColor,
                 }}
               >
                 <span
-                  className="material-symbols-outlined text-4xl"
+                  className="material-symbols-outlined text-3xl sm:text-4xl"
                   style={{ color: '#FFCA28' }}
                 >
                   {finalChallenge.icone || 'castle'}
                 </span>
-                <div className="ml-4 text-left">
-                  <h3 className="text-white font-bold text-lg">
+                <div className="ml-2 sm:ml-4 text-left">
+                  <h3 className="text-white font-bold text-base sm:text-lg">
                     {finalChallenge.titulo}
                   </h3>
-                  <p className="text-slate-300 text-sm">Desafio Final</p>
+                  <p className="text-slate-300 text-xs sm:text-sm">Desafio Final</p>
                 </div>
               </button>
             </div>
@@ -126,7 +126,7 @@ export default function TrilhaPage() {
             <div key={licao.id}>
               {/* Path SVG */}
               {index < trilha.licoes.filter((l) => l.tipo === 'licao').length - 1 && (
-                <div className="my-6 w-full flex justify-center">
+                <div className="my-4 sm:my-6 w-full flex justify-center">
                   <svg
                     fill="none"
                     height="100"
@@ -170,7 +170,7 @@ export default function TrilhaPage() {
                 <button
                   onClick={() => handleLessonClick(licao.id)}
                   disabled={licao.status === 'bloqueada'}
-                  className={`flex items-center justify-center p-3 rounded-full shadow-md border ${
+                  className={`flex items-center justify-center p-2 sm:p-3 rounded-full shadow-md border touch-manipulation active:opacity-80 ${
                     licao.status === 'bloqueada'
                       ? 'bg-slate-800/50 border-slate-600 opacity-50 cursor-not-allowed'
                       : licao.status === 'concluida'
@@ -179,12 +179,12 @@ export default function TrilhaPage() {
                   }`}
                 >
                   {licao.status === 'concluida' ? (
-                    <span className="material-symbols-outlined text-white text-3xl">
+                    <span className="material-symbols-outlined text-white text-2xl sm:text-3xl">
                       done
                     </span>
                   ) : (
                     <span
-                      className="material-symbols-outlined text-3xl"
+                      className="material-symbols-outlined text-2xl sm:text-3xl"
                       style={{
                         color: licao.status === 'bloqueada' ? '#94a3b8' : '#22d3ee',
                       }}
@@ -192,7 +192,7 @@ export default function TrilhaPage() {
                       {licao.icone || 'school'}
                     </span>
                   )}
-                  <span className="ml-3 text-white font-bold">{licao.titulo}</span>
+                  <span className="ml-2 sm:ml-3 text-white font-bold text-sm sm:text-base truncate max-w-[120px] sm:max-w-none">{licao.titulo}</span>
                 </button>
               </div>
             </div>
@@ -200,23 +200,23 @@ export default function TrilhaPage() {
 
           {/* Current Lesson Info (Bottom Sheet) */}
           {currentLesson && (
-            <div className="absolute bottom-0 left-0 right-0 bg-background-dark/80 backdrop-blur-sm rounded-t-xl pointer-events-auto">
-              <button className="flex h-5 w-full items-center justify-center pt-2">
+            <div className="absolute bottom-0 left-0 right-0 bg-background-dark/95 backdrop-blur-sm rounded-t-xl pointer-events-auto safe-area-bottom">
+              <button className="flex h-5 w-full items-center justify-center pt-2 touch-manipulation" aria-label="Arrastar">
                 <div className="h-1 w-9 rounded-full bg-slate-600" />
               </button>
-              <h2 className="text-white tracking-light text-[28px] font-bold leading-tight px-4 text-left pb-3 pt-5">
+              <h2 className="text-white tracking-light text-xl sm:text-[28px] font-bold leading-tight px-3 sm:px-4 text-left pb-2 sm:pb-3 pt-3 sm:pt-5">
                 {currentLesson.titulo}
               </h2>
-              <div className="px-4 pb-4">
-                <p className="text-slate-300 font-display text-base mb-6">
+              <div className="px-3 sm:px-4 pb-3 sm:pb-4">
+                <p className="text-slate-300 font-display text-sm sm:text-base mb-4 sm:mb-6">
                   {currentLesson.descricao || trilha.descricao || 'Complete esta lição para avançar na trilha!'}
                 </p>
                 <Button
                   onClick={() => handleLessonClick(currentLesson.id)}
-                  className="w-full bg-primary text-white h-14 text-lg gap-4"
+                  className="w-full bg-primary text-white h-12 sm:h-14 text-base sm:text-lg gap-3 sm:gap-4 touch-manipulation"
                   style={{ backgroundColor: primaryColor }}
                 >
-                  <span className="material-symbols-outlined text-white text-[24px]">
+                  <span className="material-symbols-outlined text-white text-xl sm:text-[24px]">
                     play_arrow
                   </span>
                   Iniciar Lição
@@ -228,13 +228,14 @@ export default function TrilhaPage() {
 
         {/* Mascot */}
         {trilha.mascote_imagem && (
-          <div className="fixed bottom-24 right-5 z-20">
-            <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-16 w-16 shadow-lg shadow-primary/40"
+          <div className="fixed bottom-20 sm:bottom-24 right-3 sm:right-5 z-20 safe-area-right">
+            <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-14 w-14 sm:h-16 sm:w-16 shadow-lg shadow-primary/40 touch-manipulation active:opacity-80"
               style={{ backgroundColor: primaryColor }}
+              aria-label="Mascote"
             >
               <Image
                 alt="Mascote"
-                className="h-10 w-10"
+                className="h-9 w-9 sm:h-10 sm:w-10"
                 src={trilha.mascote_imagem}
                 width={40}
                 height={40}

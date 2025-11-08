@@ -117,21 +117,21 @@ export default function LojaPage() {
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-dark overflow-x-hidden text-text-dark">
       {/* Header */}
-      <div className="flex items-center p-4 pb-2 justify-between sticky top-0 bg-background-dark z-10">
-        <div className="flex size-12 shrink-0 items-center justify-start">
-          <button onClick={() => router.back()}>
-            <span className="material-symbols-outlined text-white text-2xl">arrow_back</span>
+      <div className="flex items-center p-3 sm:p-4 pb-2 justify-between sticky top-0 bg-background-dark z-10 safe-area-top">
+        <div className="flex size-10 sm:size-12 shrink-0 items-center justify-start">
+          <button onClick={() => router.back()} className="touch-manipulation active:opacity-70" aria-label="Voltar">
+            <span className="material-symbols-outlined text-white text-xl sm:text-2xl">arrow_back</span>
           </button>
         </div>
-        <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+        <h2 className="text-white text-base sm:text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center px-2 truncate">
           Loja de Recompensas
         </h2>
         <div className="flex w-auto items-center justify-end">
-          <div className="flex items-center gap-1 rounded-full bg-primary/20 px-3 py-1.5">
-            <span className="material-symbols-outlined text-[#FFD700] text-xl">
+          <div className="flex items-center gap-1 rounded-full bg-primary/20 px-2 sm:px-3 py-1 sm:py-1.5">
+            <span className="material-symbols-outlined text-[#FFD700] text-lg sm:text-xl">
               monetization_on
             </span>
-            <p className="text-white text-base font-bold leading-normal tracking-[0.015em] shrink-0">
+            <p className="text-white text-sm sm:text-base font-bold leading-normal tracking-[0.015em] shrink-0">
               {coins.toLocaleString('pt-BR')}
             </p>
           </div>
@@ -139,41 +139,41 @@ export default function LojaPage() {
       </div>
 
       {/* Tabs */}
-      <div className="sticky top-[72px] bg-background-dark z-10">
-        <div className="flex border-b border-white/20 px-4 gap-4 overflow-x-auto whitespace-nowrap">
+      <div className="sticky top-[60px] sm:top-[72px] bg-background-dark z-10">
+        <div className="flex border-b border-white/20 px-3 sm:px-4 gap-2 sm:gap-4 overflow-x-auto whitespace-nowrap smooth-scroll">
           <button
             onClick={() => setActiveTab('avatar')}
-            className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-4 transition-colors ${
+            className={`flex flex-col items-center justify-center border-b-[3px] pb-3 sm:pb-[13px] pt-3 sm:pt-4 transition-colors touch-manipulation ${
               activeTab === 'avatar'
                 ? 'border-b-primary text-primary'
-                : 'border-b-transparent text-white/60'
+                : 'border-b-transparent text-white/60 active:text-white/80'
             }`}
           >
-            <p className="text-sm font-bold leading-normal tracking-[0.015em]">
+            <p className="text-xs sm:text-sm font-bold leading-normal tracking-[0.015em]">
               Roupas para o Avatar
             </p>
           </button>
           <button
             onClick={() => setActiveTab('coruja')}
-            className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-4 transition-colors ${
+            className={`flex flex-col items-center justify-center border-b-[3px] pb-3 sm:pb-[13px] pt-3 sm:pt-4 transition-colors touch-manipulation ${
               activeTab === 'coruja'
                 ? 'border-b-primary text-primary'
-                : 'border-b-transparent text-white/60'
+                : 'border-b-transparent text-white/60 active:text-white/80'
             }`}
           >
-            <p className="text-sm font-bold leading-normal tracking-[0.015em]">
+            <p className="text-xs sm:text-sm font-bold leading-normal tracking-[0.015em]">
               Acessórios para a Coruja
             </p>
           </button>
           <button
             onClick={() => setActiveTab('powerups')}
-            className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-4 transition-colors ${
+            className={`flex flex-col items-center justify-center border-b-[3px] pb-3 sm:pb-[13px] pt-3 sm:pt-4 transition-colors touch-manipulation ${
               activeTab === 'powerups'
                 ? 'border-b-primary text-primary'
-                : 'border-b-transparent text-white/60'
+                : 'border-b-transparent text-white/60 active:text-white/80'
             }`}
           >
-            <p className="text-sm font-bold leading-normal tracking-[0.015em]">
+            <p className="text-xs sm:text-sm font-bold leading-normal tracking-[0.015em]">
               Power-ups para Lições
             </p>
           </button>
@@ -181,14 +181,14 @@ export default function LojaPage() {
       </div>
 
       {/* Content */}
-      <main className="flex-1 px-4 py-4 overflow-y-auto">
+      <main className="flex-1 px-3 sm:px-4 py-3 sm:py-4 overflow-y-auto smooth-scroll">
         {activeTab === 'avatar' && (
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 sm:gap-4">
             {avatarItems.length > 0 ? (
               avatarItems.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-col gap-3 pb-3 cursor-pointer"
+                className="flex flex-col gap-2 sm:gap-3 pb-2 sm:pb-3 cursor-pointer touch-manipulation active:opacity-80"
                 onClick={() => setSelectedItem(item)}
               >
                 <div
@@ -199,35 +199,35 @@ export default function LojaPage() {
                   }}
                 >
                   {item.equipado && (
-                    <div className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-primary">
-                      <span className="material-symbols-outlined text-background-dark text-base">
+                    <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 flex size-5 sm:size-6 items-center justify-center rounded-full bg-primary">
+                      <span className="material-symbols-outlined text-background-dark text-sm sm:text-base">
                         check
                       </span>
                     </div>
                   )}
                 </div>
                 <div>
-                  <p className="text-white text-base font-medium leading-normal">{item.nome}</p>
+                  <p className="text-white text-sm sm:text-base font-medium leading-normal truncate">{item.nome}</p>
                   {item.possui ? (
-                    <p className="text-gray-400 text-sm font-normal leading-normal">Comprado</p>
+                    <p className="text-gray-400 text-xs sm:text-sm font-normal leading-normal">Comprado</p>
                   ) : (
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 flex-wrap">
                       {item.preco_moedas > 0 && (
                         <>
-                          <span className="material-symbols-outlined text-[#FFD700] text-base">
+                          <span className="material-symbols-outlined text-[#FFD700] text-sm sm:text-base">
                             monetization_on
                           </span>
-                          <p className="text-white/80 text-sm font-normal leading-normal">
+                          <p className="text-white/80 text-xs sm:text-sm font-normal leading-normal">
                             {item.preco_moedas}
                           </p>
                         </>
                       )}
                       {item.preco_pontos > 0 && (
                         <>
-                          <span className="material-symbols-outlined text-primary text-base">
+                          <span className="material-symbols-outlined text-primary text-sm sm:text-base">
                             star
                           </span>
-                          <p className="text-white/80 text-sm font-normal leading-normal">
+                          <p className="text-white/80 text-xs sm:text-sm font-normal leading-normal">
                             {item.preco_pontos}
                           </p>
                         </>
@@ -248,17 +248,17 @@ export default function LojaPage() {
         )}
 
         {activeTab === 'coruja' && (
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 sm:gap-4">
             {owlAccessories.length > 0 ? (
               owlAccessories.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col gap-3 pb-3 cursor-pointer"
+                  className="flex flex-col gap-2 sm:gap-3 pb-2 sm:pb-3 cursor-pointer touch-manipulation active:opacity-80"
                   onClick={() => setSelectedItem(item)}
                 >
                   <div
                     className={`w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg relative ${
-                      item.equipado ? 'border-4 border-[#50E3C2]' : ''
+                      item.equipado ? 'border-3 sm:border-4 border-[#50E3C2]' : ''
                     }`}
                     style={{
                       backgroundImage: item.imagem_url ? `url('${item.imagem_url}')` : undefined,
@@ -266,26 +266,26 @@ export default function LojaPage() {
                     }}
                   >
                     {item.possui && (
-                      <div className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-[#50E3C2]">
-                        <span className="material-symbols-outlined text-[#1D2B53] text-base">
+                      <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 flex size-5 sm:size-6 items-center justify-center rounded-full bg-[#50E3C2]">
+                        <span className="material-symbols-outlined text-[#1D2B53] text-sm sm:text-base">
                           check
                         </span>
                       </div>
                     )}
                   </div>
                   <div>
-                    <p className="text-white text-base font-medium leading-normal">{item.nome}</p>
+                    <p className="text-white text-sm sm:text-base font-medium leading-normal truncate">{item.nome}</p>
                     {item.possui ? (
-                      <p className="text-[#B0B0B0] text-sm font-normal leading-normal">Comprado</p>
+                      <p className="text-[#B0B0B0] text-xs sm:text-sm font-normal leading-normal">Comprado</p>
                     ) : (
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 flex-wrap">
                         {item.preco_moedas > 0 && (
-                          <p className="text-[#FFD700] text-sm font-normal leading-normal">
+                          <p className="text-[#FFD700] text-xs sm:text-sm font-normal leading-normal">
                             🪙 {item.preco_moedas}
                           </p>
                         )}
                         {item.preco_pontos > 0 && (
-                          <p className="text-primary text-sm font-normal leading-normal">
+                          <p className="text-primary text-xs sm:text-sm font-normal leading-normal">
                             ⭐ {item.preco_pontos}
                           </p>
                         )}
@@ -305,8 +305,8 @@ export default function LojaPage() {
         )}
 
         {activeTab === 'powerups' && (
-          <div className="flex flex-col gap-3 pb-8">
-            <h1 className="text-white tracking-tight text-[32px] font-bold leading-tight text-left pb-3 pt-6">
+          <div className="flex flex-col gap-3 sm:gap-4 pb-6 sm:pb-8">
+            <h1 className="text-white tracking-tight text-xl sm:text-2xl md:text-[32px] font-bold leading-tight text-left pb-2 sm:pb-3 pt-4 sm:pt-6">
               Power-ups para Lições
             </h1>
             {powerUps.length > 0 ? (
@@ -321,19 +321,19 @@ export default function LojaPage() {
                 return (
                   <div
                     key={powerUp.id}
-                    className="flex gap-4 bg-white/5 p-4 justify-between rounded-lg"
+                    className="flex gap-3 sm:gap-4 bg-white/5 p-3 sm:p-4 justify-between rounded-lg"
                   >
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
                       <div
-                        className={`flex items-center justify-center rounded-lg shrink-0 size-12 ${color}`}
+                        className={`flex items-center justify-center rounded-lg shrink-0 size-10 sm:size-12 ${color}`}
                       >
-                        <span className="material-symbols-outlined text-3xl">{icon}</span>
+                        <span className="material-symbols-outlined text-2xl sm:text-3xl">{icon}</span>
                       </div>
-                      <div className="flex flex-1 flex-col justify-center">
-                        <p className="text-white text-base font-bold leading-normal">
+                      <div className="flex flex-1 flex-col justify-center min-w-0">
+                        <p className="text-white text-sm sm:text-base font-bold leading-normal truncate">
                           {powerUp.nome}
                         </p>
-                        <p className="text-gray-400 text-sm font-normal leading-normal mt-1">
+                        <p className="text-gray-400 text-xs sm:text-sm font-normal leading-normal mt-1 line-clamp-2">
                           {powerUp.descricao || 'Power-up especial para lições'}
                         </p>
                       </div>
@@ -342,26 +342,26 @@ export default function LojaPage() {
                       {powerUp.possui ? (
                         <button
                           disabled
-                          className="flex min-w-[84px] cursor-not-allowed items-center justify-center gap-1 overflow-hidden rounded-full h-10 px-4 bg-green-600/50 text-white text-sm font-bold leading-normal w-fit"
+                          className="flex min-w-[84px] cursor-not-allowed items-center justify-center gap-1 overflow-hidden rounded-full h-9 sm:h-10 px-3 sm:px-4 bg-green-600/50 text-white text-xs sm:text-sm font-bold leading-normal w-fit touch-manipulation"
                         >
-                          <span className="material-symbols-outlined text-lg">check</span>
+                          <span className="material-symbols-outlined text-base sm:text-lg">check</span>
                           <span className="truncate">Possui</span>
                         </button>
                       ) : (
                         <button
                           onClick={() => handleBuy(powerUp)}
                           disabled={!powerUp.ativo || !podeComprar}
-                          className="flex min-w-[84px] cursor-pointer items-center justify-center gap-1 overflow-hidden rounded-full h-10 px-4 bg-primary text-white text-sm font-bold leading-normal w-fit transition-transform hover:scale-105 active:scale-95 disabled:bg-gray-500/50 disabled:text-white/70 disabled:cursor-not-allowed"
+                          className="flex min-w-[84px] cursor-pointer items-center justify-center gap-1 overflow-hidden rounded-full h-9 sm:h-10 px-3 sm:px-4 bg-primary text-white text-xs sm:text-sm font-bold leading-normal w-fit transition-transform hover:scale-105 active:scale-95 disabled:bg-gray-500/50 disabled:text-white/70 disabled:cursor-not-allowed touch-manipulation"
                         >
                           {powerUp.preco_moedas > 0 && (
                             <>
-                              <span className="material-symbols-outlined text-lg">monetization_on</span>
+                              <span className="material-symbols-outlined text-base sm:text-lg">monetization_on</span>
                               <span className="truncate">{powerUp.preco_moedas}</span>
                             </>
                           )}
                           {powerUp.preco_pontos > 0 && (
                             <>
-                              <span className="material-symbols-outlined text-lg">star</span>
+                              <span className="material-symbols-outlined text-base sm:text-lg">star</span>
                               <span className="truncate">{powerUp.preco_pontos}</span>
                             </>
                           )}
