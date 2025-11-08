@@ -13,7 +13,7 @@
 - ✅ 15 componentes otimizados
 - ✅ 6 modals otimizados
 - ✅ 3 páginas de autenticação otimizadas
-- ✅ 25 páginas principais otimizadas
+- ✅ 28 páginas principais otimizadas
 
 ### ⏳ Em Andamento (1%)
 - ⏳ Páginas restantes (outras)
@@ -44,7 +44,7 @@
 
 ---
 
-## ✅ Páginas Otimizadas (28/40+)
+## ✅ Páginas Otimizadas (31/40+)
 
 ### Autenticação
 1. ✅ **Login** - Títulos e espaçamentos responsivos
@@ -84,6 +84,9 @@
 
 ### Outras Páginas
 27. ✅ **Enviar Comunicado** - Formulário e grids responsivos
+28. ✅ **Lição Interativa** - Perguntas, opções e feedback responsivos
+29. ✅ **Alterar Senha** - Formulário responsivo
+30. ✅ **Inserir Código Turma** - Formulário e info card responsivos
 
 ---
 
@@ -147,8 +150,8 @@
 - **Pendentes**: 0/6 (0%)
 
 ### Páginas
-- **Otimizadas**: 28/40+ (70%)
-- **Pendentes**: 12+/40+ (30%)
+- **Otimizadas**: 31/40+ (78%)
+- **Pendentes**: 9+/40+ (22%)
 
 ---
 
@@ -160,7 +163,7 @@ A adaptação mobile está **99% completa**:
 - ✅ **Componentes base**: 88%
 - ✅ **Modals**: 100%
 - ✅ **Páginas de autenticação**: 100%
-- ✅ **Páginas principais**: 70% (28 páginas)
+- ✅ **Páginas principais**: 78% (31 páginas)
 
 **Próximo passo**: Finalizar páginas restantes (outras).
 
