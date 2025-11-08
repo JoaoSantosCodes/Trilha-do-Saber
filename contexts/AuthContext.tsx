@@ -30,6 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -45,11 +46,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Só processar se houver sessão válida com token
       if (session?.user && session?.access_token) {
-        // Só carregar perfil se houver sessão válida com token
-        await loadProfile(session.user.id)
+        // Só carregar perfil se houver sessão válida com token e não estiver carregando
+        if (!isLoadingProfile) {
+          setIsLoadingProfile(true)
+          await loadProfile(session.user.id)
+          setIsLoadingProfile(false)
+        }
       } else {
         // Se não houver sessão ou token, não tentar carregar perfil
         setProfile(null)
+        setIsLoadingProfile(false)
       }
 
       setLoading(false)
@@ -58,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe()
     }
-  }, [])
+  }, [isLoadingProfile])
 
   const checkSession = async () => {
     try {
@@ -68,12 +74,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session)
       setUser(session?.user ?? null)
 
-      if (session?.user && session?.access_token) {
+      if (session?.user && session?.access_token && !isLoadingProfile) {
         // Carregar perfil de forma não-bloqueante
-        // Só carregar se houver sessão válida com token
-        loadProfile(session.user.id).catch(() => {
-          // Ignorar erros de perfil, não bloquear o app
-        })
+        // Só carregar se houver sessão válida com token e não estiver carregando
+        setIsLoadingProfile(true)
+        loadProfile(session.user.id)
+          .catch(() => {
+            // Ignorar erros de perfil, não bloquear o app
+          })
+          .finally(() => {
+            setIsLoadingProfile(false)
+          })
       } else {
         // Se não houver sessão ou token, não tentar carregar perfil
         setProfile(null)
