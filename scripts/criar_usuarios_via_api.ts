@@ -74,13 +74,25 @@ const users: UserData[] = [
 
 async function createUser(userData: UserData) {
   try {
+    // Tentar com Service Role Key (pode ser sb_secret_ ou JWT)
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+
+    // Se a chave começa com 'sb_secret_', usar como apikey
+    // Se for JWT, usar como Bearer token
+    if (SUPABASE_SERVICE_ROLE_KEY.startsWith('sb_secret_')) {
+      headers['apikey'] = SUPABASE_SERVICE_ROLE_KEY
+      headers['Authorization'] = `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+    } else {
+      // Assumir que é JWT
+      headers['Authorization'] = `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+      headers['apikey'] = SUPABASE_SERVICE_ROLE_KEY
+    }
+
     const response = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-        'apikey': SUPABASE_SERVICE_ROLE_KEY
-      },
+      headers,
       body: JSON.stringify({
         email: userData.email,
         password: userData.password,
@@ -90,8 +102,17 @@ async function createUser(userData: UserData) {
     })
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || `HTTP ${response.status}`)
+      const errorText = await response.text()
+      let errorMessage = `HTTP ${response.status}`
+      
+      try {
+        const error = JSON.parse(errorText)
+        errorMessage = error.message || error.error_description || errorMessage
+      } catch {
+        errorMessage = errorText || errorMessage
+      }
+      
+      throw new Error(errorMessage)
     }
 
     const data = await response.json()
