@@ -175,16 +175,14 @@ SELECT
 WHERE NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'aluno@teste.com');
 
 -- ============================================
--- ATUALIZAR REGISTROS EM public.users
+-- ATUALIZAR REGISTROS EM public.users (se existir)
 -- ============================================
--- (O trigger handle_new_user() deve criar automaticamente, mas vamos garantir)
 
--- Verificar se a tabela users existe antes de atualizar
 DO $$
 BEGIN
-  -- Atualizar roles em public.users baseado nos metadata do auth.users
-  -- Apenas se a tabela existir
+  -- Verificar se a tabela users existe antes de atualizar
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users') THEN
+    -- Atualizar roles em public.users baseado nos metadata do auth.users
     UPDATE public.users u
     SET 
       name = COALESCE(
@@ -239,13 +237,6 @@ SELECT
   COUNT(*) as total
 FROM auth.users
 WHERE email IN ('coordenador@teste.com', 'professor@teste.com', 'pais@teste.com', 'aluno@teste.com')
-UNION ALL
-SELECT 
-  '✅ Registros criados em public.users' as status,
-  COUNT(*) as total
-FROM public.users
-WHERE email IN ('coordenador@teste.com', 'professor@teste.com', 'pais@teste.com', 'aluno@teste.com')
-  AND EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users')
 UNION ALL
 SELECT 
   '✅ Coordenador criado' as status,
