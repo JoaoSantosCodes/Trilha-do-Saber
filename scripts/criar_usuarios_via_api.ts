@@ -107,11 +107,15 @@ async function createUser(userData: UserData) {
       
       try {
         const error = JSON.parse(errorText)
-        errorMessage = error.message || error.error_description || errorMessage
+        errorMessage = error.message || error.error_description || error.msg || errorMessage
+        if (error.errors) {
+          errorMessage += ` - ${JSON.stringify(error.errors)}`
+        }
       } catch {
         errorMessage = errorText || errorMessage
       }
       
+      console.error(`   Detalhes do erro: ${errorText}`)
       throw new Error(errorMessage)
     }
 
