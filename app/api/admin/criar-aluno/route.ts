@@ -24,11 +24,25 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Verificar se email já existe
-    const { data: emailExistente } = await supabaseAdmin
-      .from('profiles')
+    // Tentar users primeiro, depois profiles (fallback)
+    let emailExistente: any = null
+    
+    const usersResult = await supabaseAdmin
+      .from('users')
       .select('id')
       .eq('email', email.trim())
       .single()
+
+    if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+      const profilesResult = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('email', email.trim())
+        .single()
+      emailExistente = profilesResult.data
+    } else {
+      emailExistente = usersResult.data
+    }
 
     if (emailExistente) {
       return NextResponse.json({ error: 'Este email já está cadastrado' }, { status: 400 })
@@ -50,22 +64,60 @@ export async function POST(request: NextRequest) {
 
     const userId = authData.user.id
 
-    // 3. Atualizar perfil com role de aluno
-    const { error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .update({ role: 'aluno', full_name: nome.trim() })
-      .eq('id', userId)
+    // 3. Criar/atualizar perfil com role de aluno
+    // Tentar users primeiro, depois profiles (fallback)
+    let profileError: any = null
+    
+    const usersResult = await supabaseAdmin
+      .from('users')
+      .upsert({ 
+        id: userId, 
+        email: email.trim(),
+        name: nome.trim(),
+        role: 'student',
+        username: email.split('@')[0]
+      }, { onConflict: 'id' })
 
-    if (profileError) throw profileError
+    if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+      const profilesResult = await supabaseAdmin
+        .from('profiles')
+        .update({ role: 'aluno', full_name: nome.trim() })
+        .eq('id', userId)
+      profileError = profilesResult.error
+    } else {
+      profileError = usersResult.error
+    }
 
-    // 4. Criar registro na tabela alunos
-    const { error: alunoError } = await supabaseAdmin.from('alunos').insert({
-      id: userId,
-      data_nascimento: dataNascimento || null,
-      serie: serie?.trim() || null,
+    // Não bloquear se não conseguir atualizar perfil
+    if (profileError && !profileError.message?.includes('duplicate')) {
+      console.warn('Aviso: Não foi possível atualizar perfil:', profileError.message)
+    }
+
+    // 4. Criar registro na tabela students (ou alunos como fallback)
+    let alunoError: any = null
+    
+    const studentsResult = await supabaseAdmin.from('students').insert({
+      user_id: userId,
+      grade: serie ? parseInt(serie) || 1 : 1,
+      total_points: 0,
+      level: 1,
     })
 
-    if (alunoError) throw alunoError
+    if (studentsResult.error && studentsResult.error.message?.includes('does not exist')) {
+      const alunosResult = await supabaseAdmin.from('alunos').insert({
+        id: userId,
+        data_nascimento: dataNascimento || null,
+        serie: serie?.trim() || null,
+      })
+      alunoError = alunosResult.error
+    } else {
+      alunoError = studentsResult.error
+    }
+
+    // Não bloquear se não conseguir criar registro de aluno
+    if (alunoError && !alunoError.message?.includes('duplicate')) {
+      console.warn('Aviso: Não foi possível criar registro de aluno:', alunoError.message)
+    }
 
     // 5. Associar aluno à turma se selecionada
     if (turmaId) {

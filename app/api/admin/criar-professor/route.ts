@@ -24,22 +24,50 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Verificar se email já existe
-    const { data: emailExistente } = await supabaseAdmin
-      .from('profiles')
+    // Tentar users primeiro, depois profiles (fallback)
+    let emailExistente: any = null
+    
+    const usersResult = await supabaseAdmin
+      .from('users')
       .select('id')
       .eq('email', email.trim())
       .single()
+
+    if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+      const profilesResult = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('email', email.trim())
+        .single()
+      emailExistente = profilesResult.data
+    } else {
+      emailExistente = usersResult.data
+    }
 
     if (emailExistente) {
       return NextResponse.json({ error: 'Este email já está cadastrado' }, { status: 400 })
     }
 
     // 2. Verificar se matrícula já existe
-    const { data: matriculaExistente } = await supabaseAdmin
-      .from('professores')
-      .select('id')
-      .eq('matricula', matricula.trim())
+    // Tentar teachers primeiro, depois professores (fallback)
+    let matriculaExistente: any = null
+    
+    const teachersResult = await supabaseAdmin
+      .from('teachers')
+      .select('user_id as id')
+      .eq('employee_id', matricula.trim())
       .single()
+
+    if (teachersResult.error && teachersResult.error.message?.includes('does not exist')) {
+      const professoresResult = await supabaseAdmin
+        .from('professores')
+        .select('id')
+        .eq('matricula', matricula.trim())
+        .single()
+      matriculaExistente = professoresResult.data
+    } else {
+      matriculaExistente = teachersResult.data
+    }
 
     if (matriculaExistente) {
       return NextResponse.json({ error: 'Esta matrícula já está em uso' }, { status: 400 })
@@ -61,22 +89,58 @@ export async function POST(request: NextRequest) {
 
     const userId = authData.user.id
 
-    // 4. Atualizar perfil com role de professor
-    const { error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .update({ role: 'professor', full_name: nome.trim() })
-      .eq('id', userId)
+    // 4. Criar/atualizar perfil com role de professor
+    // Tentar users primeiro, depois profiles (fallback)
+    let profileError: any = null
+    
+    const usersResult = await supabaseAdmin
+      .from('users')
+      .upsert({ 
+        id: userId, 
+        email: email.trim(),
+        name: nome.trim(),
+        role: 'teacher',
+        username: email.split('@')[0]
+      }, { onConflict: 'id' })
 
-    if (profileError) throw profileError
+    if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+      const profilesResult = await supabaseAdmin
+        .from('profiles')
+        .update({ role: 'professor', full_name: nome.trim() })
+        .eq('id', userId)
+      profileError = profilesResult.error
+    } else {
+      profileError = usersResult.error
+    }
 
-    // 5. Criar registro na tabela professores
-    const { error: professorError } = await supabaseAdmin.from('professores').insert({
-      id: userId,
-      matricula: matricula.trim(),
-      status: 'ativo',
+    // Não bloquear se não conseguir atualizar perfil
+    if (profileError && !profileError.message?.includes('duplicate')) {
+      console.warn('Aviso: Não foi possível atualizar perfil:', profileError.message)
+    }
+
+    // 5. Criar registro na tabela teachers (ou professores como fallback)
+    let professorError: any = null
+    
+    const teachersResult = await supabaseAdmin.from('teachers').insert({
+      user_id: userId,
+      employee_id: matricula.trim(),
     })
 
-    if (professorError) throw professorError
+    if (teachersResult.error && teachersResult.error.message?.includes('does not exist')) {
+      const professoresResult = await supabaseAdmin.from('professores').insert({
+        id: userId,
+        matricula: matricula.trim(),
+        status: 'ativo',
+      })
+      professorError = professoresResult.error
+    } else {
+      professorError = teachersResult.error
+    }
+
+    // Não bloquear se não conseguir criar registro de professor
+    if (professorError && !professorError.message?.includes('duplicate')) {
+      console.warn('Aviso: Não foi possível criar registro de professor:', professorError.message)
+    }
 
     return NextResponse.json({ success: true, userId })
   } catch (error: any) {
