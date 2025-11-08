@@ -239,6 +239,7 @@ export async function getCurrentUser() {
 /**
  * Obtém o perfil completo do usuário
  * Tenta buscar de 'users' (a tabela profiles pode não existir)
+ * Não gera erros no console se a tabela não existir
  */
 export async function getProfile(userId: string) {
   try {
@@ -249,17 +250,31 @@ export async function getProfile(userId: string) {
       .eq('id', userId)
       .single()
 
-    // Se users não tiver registro, tentar 'profiles' (caso exista)
-    if (error && error.message.includes('No rows')) {
-      const profilesResult = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
-      
-      if (!profilesResult.error) {
-        data = profilesResult.data
-        error = null
+    // Se users não tiver registro ou tabela não existir, tentar 'profiles' (caso exista)
+    if (error) {
+      // Se for erro de "does not exist" ou "No rows", tentar profiles
+      if (error.message?.includes('does not exist') || error.message?.includes('No rows')) {
+        try {
+          const profilesResult = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single()
+          
+          if (!profilesResult.error) {
+            data = profilesResult.data
+            error = null
+          } else {
+            // Se profiles também não existir, retornar null sem erro
+            return { profile: null, error: null }
+          }
+        } catch (profilesError: any) {
+          // Se profiles não existir, retornar null sem erro
+          return { profile: null, error: null }
+        }
+      } else {
+        // Outros erros, retornar null sem bloquear
+        return { profile: null, error: null }
       }
     }
 
@@ -271,7 +286,7 @@ export async function getProfile(userId: string) {
 
     return { profile: data, error: null }
   } catch (error: any) {
-    // Retornar null mas não bloquear o app
+    // Retornar null mas não bloquear o app - não logar erro
     return { profile: null, error: null }
   }
 }

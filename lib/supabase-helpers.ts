@@ -23,13 +23,37 @@ const TABLE_MAP: Record<string, string> = {
   'coordenadores': 'coordinators',
   'coordinators': 'coordinators',
   
-  // Outras tabelas (manter como estão)
+  // Tabelas de conteúdo
   'materias': 'subjects',
   'subjects': 'subjects',
   'trilhas': 'learning_materials',
+  'learning_materials': 'learning_materials',
   'licoes': 'lesson_plans',
+  'lesson_plans': 'lesson_plans',
   'turmas': 'classrooms',
   'classrooms': 'classrooms',
+  
+  // Tabelas de relacionamento
+  'aluno_turma': 'classroom_students',
+  'classroom_students': 'classroom_students',
+  'aluno_pais': 'parent_student_relation',
+  'parent_student_relation': 'parent_student_relation',
+  
+  // Tabelas de progresso
+  'progresso_licoes': 'student_subject_performance',
+  'student_subject_performance': 'student_subject_performance',
+  'progresso_semanal': 'student_stats',
+  'student_stats': 'student_stats',
+  'aluno_conquistas': 'student_achievements',
+  'student_achievements': 'student_achievements',
+  
+  // Tabelas de comunicação
+  'comunicados': 'announcements',
+  'announcements': 'announcements',
+  'conversas': 'messages', // Pode não existir, usar messages
+  'mensagens': 'messages',
+  'messages': 'messages',
+  'amizades': 'messages', // Pode não existir, usar messages como fallback
 }
 
 /**

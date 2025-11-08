@@ -84,24 +84,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadProfile = async (userId: string) => {
     try {
       const { profile, error } = await getProfile(userId)
-      if (error) {
-        // Se a tabela profiles não existir ou não houver registro, não é crítico
-        // O usuário ainda pode usar o app com os dados de user_metadata
-        if (error.includes('does not exist') || error.includes('No rows')) {
-          setProfile(null)
-          return
-        }
-        throw error
-      }
+      // getProfile sempre retorna error: null, então não precisa verificar
       setProfile(profile)
     } catch (error: any) {
       // Não bloquear o app se não conseguir carregar o perfil
       // O usuário ainda pode usar o app com user_metadata
       setProfile(null)
-      // Apenas logar em desenvolvimento
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Aviso: Não foi possível carregar perfil:', error?.message || error)
-      }
+      // Não logar erro - getProfile já trata todos os erros silenciosamente
     }
   }
 

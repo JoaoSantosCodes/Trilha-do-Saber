@@ -55,28 +55,62 @@ export function useProgresso() {
       setError(null)
 
       // Buscar progresso das lições
-      const { data: licoesData, error: licoesError } = await supabase
-        .from('progresso_licoes')
+      // Tentar student_subject_performance primeiro, depois progresso_licoes (fallback)
+      let licoesData: any[] | null = null
+      let licoesError: any = null
+      
+      const performanceResult = await supabase
+        .from('student_subject_performance')
         .select('*')
-        .eq('aluno_id', user.id)
+        .eq('student_id', user.id)
 
-      if (licoesError) throw licoesError
+      if (performanceResult.error && performanceResult.error.message?.includes('does not exist')) {
+        const progressoResult = await supabase
+          .from('progresso_licoes')
+          .select('*')
+          .eq('aluno_id', user.id)
+        licoesData = progressoResult.data
+        licoesError = progressoResult.error
+      } else {
+        licoesData = performanceResult.data
+        licoesError = performanceResult.error
+      }
+
+      if (licoesError && !licoesError.message?.includes('does not exist')) throw licoesError
 
       setProgressoLicoes(licoesData || [])
 
       // Buscar progresso semanal (semana atual)
+      // Tentar student_stats primeiro, depois progresso_semanal (fallback)
       const semanaAtual = new Date()
       semanaAtual.setDate(semanaAtual.getDate() - semanaAtual.getDay()) // Domingo da semana
       semanaAtual.setHours(0, 0, 0, 0)
 
-      const { data: semanalData, error: semanalError } = await supabase
-        .from('progresso_semanal')
+      let semanalData: any = null
+      let semanalError: any = null
+      
+      const statsResult = await supabase
+        .from('student_stats')
         .select('*')
-        .eq('aluno_id', user.id)
-        .eq('semana_inicio', semanaAtual.toISOString().split('T')[0])
+        .eq('student_id', user.id)
+        .eq('week_start', semanaAtual.toISOString().split('T')[0])
         .single()
 
-      if (semanalError && semanalError.code !== 'PGRST116') {
+      if (statsResult.error && statsResult.error.message?.includes('does not exist')) {
+        const semanalResult = await supabase
+          .from('progresso_semanal')
+          .select('*')
+          .eq('aluno_id', user.id)
+          .eq('semana_inicio', semanaAtual.toISOString().split('T')[0])
+          .single()
+        semanalData = semanalResult.data
+        semanalError = semanalResult.error
+      } else {
+        semanalData = statsResult.data
+        semanalError = statsResult.error
+      }
+
+      if (semanalError && semanalError.code !== 'PGRST116' && !semanalError.message?.includes('does not exist')) {
         // PGRST116 = nenhum resultado encontrado (não é erro)
         throw semanalError
       }
@@ -105,14 +139,32 @@ export function useProgresso() {
 
       if (progressoExistente) {
         // Atualizar progresso existente
-        const { data, error: err } = await supabase
-          .from('progresso_licoes')
+        // Tentar student_subject_performance primeiro, depois progresso_licoes (fallback)
+        let data: any = null
+        let err: any = null
+        
+        const performanceResult = await supabase
+          .from('student_subject_performance')
           .update(updates)
           .eq('id', progressoExistente.id)
           .select()
           .single()
 
-        if (err) throw err
+        if (performanceResult.error && performanceResult.error.message?.includes('does not exist')) {
+          const progressoResult = await supabase
+            .from('progresso_licoes')
+            .update(updates)
+            .eq('id', progressoExistente.id)
+            .select()
+            .single()
+          data = progressoResult.data
+          err = progressoResult.error
+        } else {
+          data = performanceResult.data
+          err = performanceResult.error
+        }
+
+        if (err && !err.message?.includes('does not exist')) throw err
 
         setProgressoLicoes((prev) =>
           prev.map((p) => (p.id === progressoExistente.id ? data : p))
@@ -121,17 +173,38 @@ export function useProgresso() {
         return { data, error: null }
       } else {
         // Criar novo progresso
-        const { data, error: err } = await supabase
-          .from('progresso_licoes')
+        // Tentar student_subject_performance primeiro, depois progresso_licoes (fallback)
+        let data: any = null
+        let err: any = null
+        
+        const performanceResult = await supabase
+          .from('student_subject_performance')
           .insert({
-            aluno_id: user.id,
-            licao_id: licaoId,
+            student_id: user.id,
+            lesson_plan_id: licaoId,
             ...updates,
           })
           .select()
           .single()
 
-        if (err) throw err
+        if (performanceResult.error && performanceResult.error.message?.includes('does not exist')) {
+          const progressoResult = await supabase
+            .from('progresso_licoes')
+            .insert({
+              aluno_id: user.id,
+              licao_id: licaoId,
+              ...updates,
+            })
+            .select()
+            .single()
+          data = progressoResult.data
+          err = progressoResult.error
+        } else {
+          data = performanceResult.data
+          err = performanceResult.error
+        }
+
+        if (err && !err.message?.includes('does not exist')) throw err
 
         setProgressoLicoes((prev) => [...prev, data])
         return { data, error: null }

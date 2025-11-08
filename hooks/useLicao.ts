@@ -51,34 +51,85 @@ export function useLicao(licaoId: string) {
       setError(null)
 
       // 1. Buscar dados da lição
-      const { data: licaoData, error: licaoError } = await supabase
-        .from('licoes')
+      // Tentar lesson_plans primeiro, depois licoes (fallback)
+      let licaoData: any = null
+      let licaoError: any = null
+      
+      const lessonPlansResult = await supabase
+        .from('lesson_plans')
         .select('*')
         .eq('id', licaoId)
         .single()
 
-      if (licaoError) throw licaoError
+      if (lessonPlansResult.error && lessonPlansResult.error.message?.includes('does not exist')) {
+        const licoesResult = await supabase
+          .from('licoes')
+          .select('*')
+          .eq('id', licaoId)
+          .single()
+        licaoData = licoesResult.data
+        licaoError = licoesResult.error
+      } else {
+        licaoData = lessonPlansResult.data
+        licaoError = lessonPlansResult.error
+      }
+
+      if (licaoError && !licaoError.message?.includes('No rows')) throw licaoError
       if (!licaoData) throw new Error('Lição não encontrada')
 
       // 2. Buscar questões da lição
-      const { data: questoesData, error: questoesError } = await supabase
-        .from('questoes')
+      // Tentar questions primeiro, depois questoes (fallback)
+      let questoesData: any[] | null = null
+      let questoesError: any = null
+      
+      const questionsResult = await supabase
+        .from('questions')
         .select('*')
-        .eq('licao_id', licaoId)
-        .order('ordem', { ascending: true })
+        .eq('lesson_plan_id', licaoId)
+        .order('order', { ascending: true })
 
-      if (questoesError) throw questoesError
+      if (questionsResult.error && questionsResult.error.message?.includes('does not exist')) {
+        const questoesResult = await supabase
+          .from('questoes')
+          .select('*')
+          .eq('licao_id', licaoId)
+          .order('ordem', { ascending: true })
+        questoesData = questoesResult.data
+        questoesError = questoesResult.error
+      } else {
+        questoesData = questionsResult.data
+        questoesError = questionsResult.error
+      }
+
+      if (questoesError && !questoesError.message?.includes('does not exist')) throw questoesError
 
       // 3. Buscar opções de resposta para cada questão
       const questoesComOpcoes: Questao[] = await Promise.all(
         (questoesData || []).map(async (questao) => {
-          const { data: opcoesData, error: opcoesError } = await supabase
-            .from('opcoes_resposta')
+          // Tentar quiz_questions primeiro, depois opcoes_resposta (fallback)
+          let opcoesData: any[] | null = null
+          let opcoesError: any = null
+          
+          const quizQuestionsResult = await supabase
+            .from('quiz_questions')
             .select('*')
-            .eq('questao_id', questao.id)
-            .order('ordem', { ascending: true })
+            .eq('question_id', questao.id)
+            .order('order', { ascending: true })
 
-          if (opcoesError) throw opcoesError
+          if (quizQuestionsResult.error && quizQuestionsResult.error.message?.includes('does not exist')) {
+            const opcoesResult = await supabase
+              .from('opcoes_resposta')
+              .select('*')
+              .eq('questao_id', questao.id)
+              .order('ordem', { ascending: true })
+            opcoesData = opcoesResult.data
+            opcoesError = opcoesResult.error
+          } else {
+            opcoesData = quizQuestionsResult.data
+            opcoesError = quizQuestionsResult.error
+          }
+
+          if (opcoesError && !opcoesError.message?.includes('does not exist')) throw opcoesError
 
           return {
             id: questao.id,

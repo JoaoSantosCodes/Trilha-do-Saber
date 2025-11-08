@@ -41,20 +41,52 @@ export function useConquistas(alunoId?: string) {
       setError(null)
 
       // Buscar todas as conquistas
-      const { data: todasConquistas, error: errTodas } = await supabase
-        .from('conquistas')
+      // Tentar achievements primeiro, depois conquistas (fallback)
+      let todasConquistas: any[] | null = null
+      let errTodas: any = null
+      
+      const achievementsResult = await supabase
+        .from('achievements')
         .select('*')
-        .order('ordem', { ascending: true })
+        .order('order', { ascending: true })
 
-      if (errTodas) throw errTodas
+      if (achievementsResult.error && achievementsResult.error.message?.includes('does not exist')) {
+        const conquistasResult = await supabase
+          .from('conquistas')
+          .select('*')
+          .order('ordem', { ascending: true })
+        todasConquistas = conquistasResult.data
+        errTodas = conquistasResult.error
+      } else {
+        todasConquistas = achievementsResult.data
+        errTodas = achievementsResult.error
+      }
+
+      if (errTodas && !errTodas.message?.includes('does not exist')) throw errTodas
 
       // Buscar conquistas desbloqueadas pelo aluno
-      const { data: conquistasAluno, error: errAluno } = await supabase
-        .from('aluno_conquistas')
-        .select('conquista_id, data_desbloqueio')
-        .eq('aluno_id', targetAlunoId)
+      // Tentar student_achievements primeiro, depois aluno_conquistas (fallback)
+      let conquistasAluno: any[] | null = null
+      let errAluno: any = null
+      
+      const studentAchievementsResult = await supabase
+        .from('student_achievements')
+        .select('achievement_id as conquista_id, unlocked_at as data_desbloqueio')
+        .eq('student_id', targetAlunoId)
 
-      if (errAluno) throw errAluno
+      if (studentAchievementsResult.error && studentAchievementsResult.error.message?.includes('does not exist')) {
+        const alunoConquistasResult = await supabase
+          .from('aluno_conquistas')
+          .select('conquista_id, data_desbloqueio')
+          .eq('aluno_id', targetAlunoId)
+        conquistasAluno = alunoConquistasResult.data
+        errAluno = alunoConquistasResult.error
+      } else {
+        conquistasAluno = studentAchievementsResult.data
+        errAluno = studentAchievementsResult.error
+      }
+
+      if (errAluno && !errAluno.message?.includes('does not exist')) throw errAluno
 
       const conquistasDesbloqueadas = new Set(
         conquistasAluno?.map((ac) => ac.conquista_id) || []
