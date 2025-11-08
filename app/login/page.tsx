@@ -85,15 +85,16 @@ export default function LoginPage() {
     setErrors({})
 
     try {
-      const { error } = await signIn(email, password)
+      const result = await signIn(email, password)
       
-      if (error) {
+      if (result.error) {
         setErrorMessage('A senha ou o email que você digitou não estão corretos. Por favor, tente novamente.')
         setShowErrorModal(true)
         return
       }
 
       // O redirecionamento será feito pelo useEffect quando o user for atualizado
+      // Não precisa fazer nada aqui, o useEffect vai detectar a mudança
     } catch (error: any) {
       setErrorMessage(error.message || 'Erro ao fazer login. Por favor, tente novamente.')
       setShowErrorModal(true)
