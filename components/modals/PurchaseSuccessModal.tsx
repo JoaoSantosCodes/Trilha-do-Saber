@@ -18,7 +18,7 @@ export default function PurchaseSuccessModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2D1B69]/80">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2D1B69]/80 safe-area-top safe-area-bottom">
       {/* Confetti Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(9)].map((_, i) => (
@@ -35,10 +35,10 @@ export default function PurchaseSuccessModal({
         ))}
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-md flex-col items-center gap-4 rounded-xl bg-[#4A3F8C] p-6 text-center shadow-2xl">
-        <div className="relative w-full max-w-[280px] aspect-square">
+      <div className="relative z-10 mx-auto flex w-full max-w-md flex-col items-center gap-3 sm:gap-4 rounded-xl bg-[#4A3F8C] p-4 sm:p-6 text-center shadow-2xl max-h-[90vh] overflow-y-auto smooth-scroll">
+        <div className="relative w-full max-w-[240px] sm:max-w-[280px] aspect-square">
           {/* Mascot Image */}
-          <div className="absolute -top-24 left-1/2 z-10 h-32 w-32 -translate-x-1/2 transform">
+          <div className="absolute -top-16 sm:-top-24 left-1/2 z-10 h-24 w-24 sm:h-32 sm:w-32 -translate-x-1/2 transform hidden sm:block">
             <div
               className="h-full w-full rounded-full bg-cover bg-center bg-no-repeat"
               style={{
@@ -55,22 +55,22 @@ export default function PurchaseSuccessModal({
                 style={{ backgroundImage: `url('${itemImage}')` }}
               />
             ) : (
-              <span className="material-symbols-outlined text-6xl text-white/50">shopping_bag</span>
+              <span className="material-symbols-outlined text-5xl sm:text-6xl text-white/50">shopping_bag</span>
             )}
           </div>
         </div>
-        <div className="flex flex-col items-center justify-center gap-2 px-4">
-          <h1 className="font-display text-3xl font-bold tracking-tight text-[#F8E71C]">
+        <div className="flex flex-col items-center justify-center gap-2 px-3 sm:px-4">
+          <h1 className="font-display text-xl sm:text-3xl font-bold tracking-tight text-[#F8E71C]">
             Compra realizada com sucesso!
           </h1>
-          <p className="font-display text-base font-normal leading-normal text-white/90">
+          <p className="font-display text-sm sm:text-base font-normal leading-normal text-white/90">
             Ótima escolha! Você pode equipar seu novo item no seu perfil.
           </p>
         </div>
-        <div className="flex w-full px-4 py-3">
+        <div className="flex w-full px-3 sm:px-4 py-2 sm:py-3">
           <Button
             onClick={onClose}
-            className="flex min-w-[84px] max-w-[480px] items-center justify-center overflow-hidden rounded-full h-12 flex-1 bg-[#50E3C2] text-[#2D1B69] text-base font-bold leading-normal tracking-[0.015em] shadow-lg transition-transform hover:scale-105"
+            className="flex min-w-[84px] max-w-[480px] items-center justify-center overflow-hidden rounded-full h-12 flex-1 bg-[#50E3C2] text-[#2D1B69] text-base font-bold leading-normal tracking-[0.015em] shadow-lg transition-transform hover:scale-105 active:scale-100 touch-manipulation"
           >
             <span className="truncate">Ok, legal!</span>
           </Button>

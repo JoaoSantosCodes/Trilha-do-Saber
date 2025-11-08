@@ -11,27 +11,27 @@ export default function LoadingSkeleton({ type = 'card', count = 1, className = 
     switch (type) {
       case 'card':
         return (
-          <div className="rounded-xl bg-white/5 border border-white/10 p-4 animate-pulse">
-            <div className="h-4 bg-white/10 rounded w-3/4 mb-3"></div>
-            <div className="h-3 bg-white/10 rounded w-1/2 mb-2"></div>
-            <div className="h-3 bg-white/10 rounded w-2/3"></div>
+          <div className="rounded-xl bg-white/5 border border-white/10 p-3 sm:p-4 animate-pulse">
+            <div className="h-3 sm:h-4 bg-white/10 rounded w-3/4 mb-2 sm:mb-3"></div>
+            <div className="h-2.5 sm:h-3 bg-white/10 rounded w-1/2 mb-1.5 sm:mb-2"></div>
+            <div className="h-2.5 sm:h-3 bg-white/10 rounded w-2/3"></div>
           </div>
         )
       case 'list':
         return (
-          <div className="flex items-center gap-4 p-4 animate-pulse">
-            <div className="w-12 h-12 rounded-full bg-white/10"></div>
-            <div className="flex-1">
-              <div className="h-4 bg-white/10 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-white/10 rounded w-1/2"></div>
+          <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 animate-pulse">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 shrink-0"></div>
+            <div className="flex-1 min-w-0">
+              <div className="h-3 sm:h-4 bg-white/10 rounded w-3/4 mb-1.5 sm:mb-2"></div>
+              <div className="h-2.5 sm:h-3 bg-white/10 rounded w-1/2"></div>
             </div>
           </div>
         )
       case 'grid':
         return (
-          <div className="rounded-xl bg-white/5 border border-white/10 p-4 animate-pulse">
-            <div className="aspect-square bg-white/10 rounded-lg mb-3"></div>
-            <div className="h-4 bg-white/10 rounded w-3/4"></div>
+          <div className="rounded-xl bg-white/5 border border-white/10 p-3 sm:p-4 animate-pulse">
+            <div className="aspect-square bg-white/10 rounded-lg mb-2 sm:mb-3"></div>
+            <div className="h-3 sm:h-4 bg-white/10 rounded w-3/4"></div>
           </div>
         )
       case 'text':

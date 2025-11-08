@@ -86,10 +86,10 @@ export default function CadastroPage() {
     <div className="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden" suppressHydrationWarning>
       <div className="flex w-full grow items-center justify-center p-4">
         <div className="flex w-full max-w-md flex-col items-center">
-          <h1 className="text-white dark:text-white tracking-light text-[32px] font-bold leading-tight px-4 text-center pb-3 pt-6">
+          <h1 className="text-white dark:text-white tracking-light text-2xl sm:text-[32px] font-bold leading-tight px-4 text-center pb-2 sm:pb-3 pt-4 sm:pt-6">
             Criar Conta
           </h1>
-          <p className="text-gray-400 text-base font-normal leading-normal text-center px-4 pb-8">
+          <p className="text-gray-400 text-sm sm:text-base font-normal leading-normal text-center px-4 pb-6 sm:pb-8">
             Preencha os dados para criar sua conta.
           </p>
 

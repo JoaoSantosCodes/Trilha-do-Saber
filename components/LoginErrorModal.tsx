@@ -16,7 +16,7 @@ export default function LoginErrorModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-4 safe-area-top safe-area-bottom">
       {/* Background com blur */}
       <div className="absolute inset-0 z-0 bg-background-dark"></div>
       <div className="absolute -top-1/4 -left-1/4 z-0 h-1/2 w-1/2 rounded-full bg-primary/20 blur-3xl"></div>
@@ -24,8 +24,9 @@ export default function LoginErrorModal({
       
       {/* Overlay */}
       <div 
-        className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm touch-manipulation"
         onClick={onClose}
+        aria-label="Fechar modal"
       />
 
       {/* Modal Content */}
@@ -43,28 +44,29 @@ export default function LoginErrorModal({
         </div>
 
         {/* Pop-up Card */}
-        <div className="relative z-10 w-full max-w-md transform-gpu rounded-lg bg-white p-6 text-center shadow-2xl md:p-8">
+        <div className="relative z-10 w-full max-w-md transform-gpu rounded-lg bg-white p-4 sm:p-6 md:p-8 text-center shadow-2xl max-h-[90vh] overflow-y-auto smooth-scroll">
           {/* Ícone de Alerta */}
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 text-yellow-500">
-            <span className="material-symbols-outlined !text-4xl">
+          <div className="mx-auto flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-yellow-100 text-yellow-500">
+            <span className="material-symbols-outlined !text-3xl sm:!text-4xl">
               priority_high
             </span>
           </div>
 
           {/* Título */}
-          <h1 className="mt-4 text-2xl font-bold text-slate-800">
+          <h1 className="mt-3 sm:mt-4 text-xl sm:text-2xl font-bold text-slate-800 px-2">
             Ops! Login falhou
           </h1>
 
           {/* Mensagem */}
-          <p className="mt-2 text-base text-slate-600">
+          <p className="mt-2 text-sm sm:text-base text-slate-600 px-2">
             {message}
           </p>
 
           {/* Botão */}
           <button
             onClick={onClose}
-            className="mt-6 flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-6 bg-primary text-background-dark text-base font-bold leading-normal transition-transform hover:scale-105"
+            className="mt-4 sm:mt-6 flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-6 bg-primary text-background-dark text-base font-bold leading-normal transition-transform hover:scale-105 active:scale-100 touch-manipulation"
+            aria-label="Tentar novamente"
           >
             <span className="truncate">Tentar Novamente</span>
           </button>

@@ -93,7 +93,7 @@ export default function LoginPage() {
         <div className="flex w-full grow items-center justify-center p-4">
           <div className="flex w-full max-w-md flex-col items-center">
             {/* Logo/Imagem da Coruja */}
-            <div className="flex w-full max-w-[240px] p-4">
+            <div className="flex w-full max-w-[200px] sm:max-w-[240px] p-3 sm:p-4">
               <div className="w-full aspect-square rounded-xl flex items-center justify-center overflow-hidden">
                 <div 
                   className="w-full h-full bg-center bg-no-repeat bg-contain"
@@ -107,10 +107,10 @@ export default function LoginPage() {
             </div>
 
             {/* Título */}
-            <h1 className="text-white dark:text-white tracking-light text-[32px] font-bold leading-tight px-4 text-center pb-3 pt-6">
+            <h1 className="text-white dark:text-white tracking-light text-2xl sm:text-[32px] font-bold leading-tight px-4 text-center pb-2 sm:pb-3 pt-4 sm:pt-6">
               Bem-vindo de volta!
             </h1>
-            <p className="text-gray-400 text-base font-normal leading-normal text-center px-4 pb-8">
+            <p className="text-gray-400 text-sm sm:text-base font-normal leading-normal text-center px-4 pb-6 sm:pb-8">
               Entre para continuar sua jornada de aprendizado.
             </p>
 
