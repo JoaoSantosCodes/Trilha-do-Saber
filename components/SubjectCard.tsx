@@ -27,13 +27,13 @@ export default function SubjectCard({ subject, onClick }: SubjectCardProps) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-1 flex-col items-center justify-center gap-4 rounded-lg border border-slate-700 bg-card-dark p-4 aspect-square hover:bg-card-dark/80 transition-colors"
+      className="flex flex-1 flex-col items-center justify-center gap-3 sm:gap-4 rounded-lg border border-slate-700 bg-card-dark p-3 sm:p-4 aspect-square hover:bg-card-dark/80 active:bg-card-dark/70 transition-colors touch-manipulation min-h-[120px] sm:min-h-[140px]"
     >
-      <span className={`material-symbols-outlined ${colorClass} !text-6xl`}>
+      <span className={`material-symbols-outlined ${colorClass} !text-5xl sm:!text-6xl`}>
         {subject.icon}
       </span>
       <div className="flex flex-col gap-1 text-center">
-        <h2 className={`${colorClass} text-lg font-bold leading-tight`}>
+        <h2 className={`${colorClass} text-base sm:text-lg font-bold leading-tight`}>
           {subject.name}
         </h2>
       </div>

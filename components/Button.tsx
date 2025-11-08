@@ -38,7 +38,7 @@ export default function Button({
 
   return (
     <button
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full flex-1' : ''} ${disabledStyles} ${className}`}
+      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full flex-1' : ''} ${disabledStyles} touch-manipulation min-h-[44px] ${className}`}
       disabled={disabled}
       {...props}
     >
