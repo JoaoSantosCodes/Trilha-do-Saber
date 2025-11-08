@@ -131,21 +131,21 @@ export default function NovaTurmaPage() {
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background-dark text-gray-200">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center bg-background-dark/80 p-4 pb-2 backdrop-blur-sm justify-between">
-        <div className="flex size-12 shrink-0 items-center justify-start">
-          <button onClick={() => router.back()}>
-            <span className="material-symbols-outlined text-white text-2xl">arrow_back</span>
+      <div className="sticky top-0 z-10 flex items-center bg-background-dark/95 p-3 sm:p-4 pb-2 backdrop-blur-sm justify-between safe-area-top">
+        <div className="flex size-10 sm:size-12 shrink-0 items-center justify-start">
+          <button onClick={() => router.back()} className="touch-manipulation active:opacity-70" aria-label="Voltar">
+            <span className="material-symbols-outlined text-white text-xl sm:text-2xl">arrow_back</span>
           </button>
         </div>
-        <h1 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+        <h1 className="text-white text-base sm:text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center px-2 truncate">
           Nova Turma
         </h1>
-        <div className="flex w-12 items-center justify-end"></div>
+        <div className="flex w-10 sm:w-12 items-center justify-end"></div>
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 py-4 overflow-y-auto">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <main className="flex-1 px-3 sm:px-4 py-3 sm:py-4 overflow-y-auto smooth-scroll pb-24 sm:pb-28 safe-area-bottom">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-6">
           {/* Nome */}
           <div>
             <Input
@@ -171,10 +171,10 @@ export default function NovaTurmaPage() {
 
           {/* Professor */}
           <div>
-            <label className="text-white text-sm font-medium mb-2 block">Professor Responsável</label>
+            <label className="text-white text-xs sm:text-sm font-medium mb-2 block">Professor Responsável</label>
             {loadingProfessores ? (
-              <div className="flex items-center justify-center py-4">
-                <span className="material-symbols-outlined animate-spin text-2xl text-white">
+              <div className="flex items-center justify-center py-3 sm:py-4">
+                <span className="material-symbols-outlined animate-spin text-xl sm:text-2xl text-white">
                   refresh
                 </span>
               </div>
@@ -182,7 +182,7 @@ export default function NovaTurmaPage() {
               <select
                 value={professorId}
                 onChange={(e) => setProfessorId(e.target.value)}
-                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-xl bg-white/5 border border-white/10 px-3 sm:px-4 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary touch-manipulation"
                 required
               >
                 <option value="">Selecione um professor</option>
@@ -207,8 +207,8 @@ export default function NovaTurmaPage() {
 
           {/* Período */}
           <div>
-            <label className="text-white text-sm font-medium mb-2 block">Período</label>
-            <div className="grid grid-cols-3 gap-3">
+            <label className="text-white text-xs sm:text-sm font-medium mb-2 block">Período</label>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {[
                 { value: 'manha', label: 'Manhã', icon: 'wb_sunny' },
                 { value: 'tarde', label: 'Tarde', icon: 'brightness_4' },
@@ -218,14 +218,14 @@ export default function NovaTurmaPage() {
                   key={option.value}
                   type="button"
                   onClick={() => setPeriodo(option.value as any)}
-                  className={`flex flex-col items-center justify-center gap-2 rounded-xl p-4 transition-colors ${
+                  className={`flex flex-col items-center justify-center gap-1.5 sm:gap-2 rounded-xl p-3 sm:p-4 transition-colors touch-manipulation active:opacity-80 ${
                     periodo === option.value
                       ? 'bg-primary text-background-dark'
-                      : 'bg-white/5 text-white hover:bg-white/10'
+                      : 'bg-white/5 text-white hover:bg-white/10 active:bg-white/15'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-3xl">{option.icon}</span>
-                  <p className="text-sm font-bold">{option.label}</p>
+                  <span className="material-symbols-outlined text-2xl sm:text-3xl">{option.icon}</span>
+                  <p className="text-xs sm:text-sm font-bold">{option.label}</p>
                 </button>
               ))}
             </div>
@@ -243,29 +243,29 @@ export default function NovaTurmaPage() {
 
           {/* Error Message */}
           {error && (
-            <div className="rounded-xl bg-red-500/20 border border-red-500/50 p-4">
-              <p className="text-red-400 text-sm font-medium">{error}</p>
+            <div className="rounded-xl bg-red-500/20 border border-red-500/50 p-3 sm:p-4">
+              <p className="text-red-400 text-xs sm:text-sm font-medium">{error}</p>
             </div>
           )}
 
           {/* Submit Button */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2 sm:gap-3 pt-3 sm:pt-4">
             <Button
               type="button"
               onClick={() => router.back()}
-              className="flex-1 bg-white/20 text-white h-14"
+              className="flex-1 bg-white/20 text-white h-12 sm:h-14 text-sm sm:text-base touch-manipulation"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={isLoading || !nome.trim() || !codigo.trim() || !professorId}
-              className="flex-1 bg-primary text-background-dark h-14 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-primary text-background-dark h-12 sm:h-14 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
-                  <span className="material-symbols-outlined animate-spin">refresh</span>
-                  Criando...
+                  <span className="material-symbols-outlined animate-spin text-lg sm:text-xl">refresh</span>
+                  <span className="text-xs sm:text-sm">Criando...</span>
                 </span>
               ) : (
                 'Criar Turma'

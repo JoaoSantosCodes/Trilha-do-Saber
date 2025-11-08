@@ -130,35 +130,35 @@ export default function ComunicadosPage() {
     return (
       <div className="relative flex min-h-screen w-full flex-col bg-background-dark text-gray-200">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center bg-background-dark/80 p-4 pb-2 backdrop-blur-sm justify-between">
-          <div className="flex size-12 shrink-0 items-center justify-start">
-            <button onClick={() => setSelectedComunicado(null)}>
-              <span className="material-symbols-outlined text-white text-2xl">arrow_back</span>
+        <div className="sticky top-0 z-10 flex items-center bg-background-dark/95 p-3 sm:p-4 pb-2 backdrop-blur-sm justify-between safe-area-top">
+          <div className="flex size-10 sm:size-12 shrink-0 items-center justify-start">
+            <button onClick={() => setSelectedComunicado(null)} className="touch-manipulation active:opacity-70" aria-label="Voltar">
+              <span className="material-symbols-outlined text-white text-xl sm:text-2xl">arrow_back</span>
             </button>
           </div>
-          <h1 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+          <h1 className="text-white text-base sm:text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center px-2 truncate">
             Comunicado
           </h1>
-          <div className="flex w-12 items-center justify-end"></div>
+          <div className="flex w-10 sm:w-12 items-center justify-end"></div>
         </div>
 
         {/* Content */}
-        <main className="flex-1 px-4 py-4 overflow-y-auto">
-          <div className="flex flex-col gap-4 max-w-2xl mx-auto">
-            <div className="rounded-xl bg-white/5 border border-white/10 p-6">
-              <div className="flex items-start gap-4 mb-4">
-                <div className="flex shrink-0 items-center justify-center rounded-lg bg-primary/20 size-12 text-primary">
-                  <span className="material-symbols-outlined text-2xl">
+        <main className="flex-1 px-3 sm:px-4 py-3 sm:py-4 overflow-y-auto smooth-scroll pb-24 sm:pb-28 safe-area-bottom">
+          <div className="flex flex-col gap-3 sm:gap-4 max-w-2xl mx-auto">
+            <div className="rounded-xl bg-white/5 border border-white/10 p-4 sm:p-6">
+              <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
+                <div className="flex shrink-0 items-center justify-center rounded-lg bg-primary/20 size-10 sm:size-12 text-primary">
+                  <span className="material-symbols-outlined text-xl sm:text-2xl">
                     {getTipoIcon(selectedComunicado.tipo)}
                   </span>
                 </div>
-                <div className="flex-1">
-                  <h2 className="text-white text-xl font-bold mb-2">{selectedComunicado.titulo}</h2>
-                  <p className="text-gray-400 text-sm">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-white text-base sm:text-xl font-bold mb-1.5 sm:mb-2 truncate">{selectedComunicado.titulo}</h2>
+                  <p className="text-gray-400 text-xs sm:text-sm truncate">
                     {selectedComunicado.coordenador_nome}
                     {selectedComunicado.turma_nome && ` • ${selectedComunicado.turma_nome}`}
                   </p>
-                  <p className="text-gray-500 text-xs mt-1">
+                  <p className="text-gray-500 text-[10px] sm:text-xs mt-1">
                     {new Date(selectedComunicado.enviado_em).toLocaleDateString('pt-BR', {
                       day: '2-digit',
                       month: 'long',
@@ -167,8 +167,8 @@ export default function ComunicadosPage() {
                   </p>
                 </div>
               </div>
-              <div className="mt-4">
-                <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+              <div className="mt-3 sm:mt-4">
+                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap break-words">
                   {selectedComunicado.conteudo}
                 </p>
               </div>
@@ -182,20 +182,20 @@ export default function ComunicadosPage() {
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background-dark text-gray-200">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center bg-background-dark/80 p-4 pb-2 backdrop-blur-sm justify-between">
-        <div className="flex size-12 shrink-0 items-center justify-start">
-          <button onClick={() => router.back()}>
-            <span className="material-symbols-outlined text-white text-2xl">arrow_back</span>
+      <div className="sticky top-0 z-10 flex items-center bg-background-dark/95 p-3 sm:p-4 pb-2 backdrop-blur-sm justify-between safe-area-top">
+        <div className="flex size-10 sm:size-12 shrink-0 items-center justify-start">
+          <button onClick={() => router.back()} className="touch-manipulation active:opacity-70" aria-label="Voltar">
+            <span className="material-symbols-outlined text-white text-xl sm:text-2xl">arrow_back</span>
           </button>
         </div>
-        <h1 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+        <h1 className="text-white text-base sm:text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center px-2 truncate">
           Comunicados
         </h1>
-        <div className="flex w-12 items-center justify-end"></div>
+        <div className="flex w-10 sm:w-12 items-center justify-end"></div>
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 py-4 overflow-y-auto">
+      <main className="flex-1 px-3 sm:px-4 py-3 sm:py-4 overflow-y-auto smooth-scroll pb-24 sm:pb-28 safe-area-bottom">
         {comunicados.length === 0 ? (
           <EmptyState
             icon="mark_email_read"
@@ -203,27 +203,27 @@ export default function ComunicadosPage() {
             description="Nenhum comunicado da escola por agora. Você será notificado quando houver novidades."
           />
         ) : (
-          <div className="flex flex-col gap-2 max-w-2xl mx-auto">
+          <div className="flex flex-col gap-2 sm:gap-3 max-w-2xl mx-auto">
             {comunicados.map((comunicado) => (
               <button
                 key={comunicado.id}
                 onClick={() => setSelectedComunicado(comunicado)}
-                className="flex items-center gap-4 px-4 py-3 min-h-[72px] rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-left"
+                className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 sm:py-3 min-h-[64px] sm:min-h-[72px] rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 active:bg-white/15 transition-colors text-left touch-manipulation"
               >
-                <div className="flex shrink-0 items-center justify-center rounded-lg bg-primary/20 size-12 text-primary">
-                  <span className="material-symbols-outlined text-2xl">
+                <div className="flex shrink-0 items-center justify-center rounded-lg bg-primary/20 size-10 sm:size-12 text-primary">
+                  <span className="material-symbols-outlined text-xl sm:text-2xl">
                     {getTipoIcon(comunicado.tipo)}
                   </span>
                 </div>
                 <div className="flex flex-1 flex-col justify-center overflow-hidden min-w-0">
-                  <p className="truncate text-base font-medium text-white">{comunicado.titulo}</p>
-                  <p className="truncate text-sm font-normal text-gray-400">
+                  <p className="truncate text-sm sm:text-base font-medium text-white">{comunicado.titulo}</p>
+                  <p className="truncate text-xs sm:text-sm font-normal text-gray-400">
                     {comunicado.coordenador_nome}
                     {comunicado.turma_nome && ` • ${comunicado.turma_nome}`}
                   </p>
                 </div>
                 <div className="shrink-0">
-                  <p className="text-sm font-normal text-gray-500">{formatDate(comunicado.enviado_em)}</p>
+                  <p className="text-xs sm:text-sm font-normal text-gray-500 whitespace-nowrap">{formatDate(comunicado.enviado_em)}</p>
                 </div>
               </button>
             ))}

@@ -98,37 +98,37 @@ function NovaTarefaContent() {
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background-dark text-gray-200">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center bg-background-dark/80 p-4 pb-2 backdrop-blur-sm justify-between">
-        <div className="flex size-12 shrink-0 items-center justify-start">
-          <button onClick={() => router.back()}>
-            <span className="material-symbols-outlined text-white text-2xl">arrow_back</span>
+      <div className="sticky top-0 z-10 flex items-center bg-background-dark/95 p-3 sm:p-4 pb-2 backdrop-blur-sm justify-between safe-area-top">
+        <div className="flex size-10 sm:size-12 shrink-0 items-center justify-start">
+          <button onClick={() => router.back()} className="touch-manipulation active:opacity-70" aria-label="Voltar">
+            <span className="material-symbols-outlined text-white text-xl sm:text-2xl">arrow_back</span>
           </button>
         </div>
-        <h1 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+        <h1 className="text-white text-base sm:text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center px-2 truncate">
           Nova Tarefa
         </h1>
-        <div className="flex w-12 items-center justify-end"></div>
+        <div className="flex w-10 sm:w-12 items-center justify-end"></div>
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 py-4 overflow-y-auto">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <main className="flex-1 px-3 sm:px-4 py-3 sm:py-4 overflow-y-auto smooth-scroll pb-24 sm:pb-28 safe-area-bottom">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-6">
           {/* Seleção de Filho */}
           <div>
-            <label className="text-white text-sm font-medium mb-2 block">Para qual filho?</label>
-            <div className="flex gap-3 overflow-x-auto pb-2">
+            <label className="text-white text-xs sm:text-sm font-medium mb-2 block">Para qual filho?</label>
+            <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 smooth-scroll [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {filhos.map((filho) => (
                 <button
                   key={filho.id}
                   type="button"
                   onClick={() => setSelectedChild(filho.id)}
-                  className={`flex h-10 shrink-0 cursor-pointer items-center justify-center gap-x-2 rounded-full px-4 transition-colors ${
+                  className={`flex h-9 sm:h-10 shrink-0 cursor-pointer items-center justify-center gap-x-2 rounded-full px-3 sm:px-4 transition-colors touch-manipulation active:opacity-80 ${
                     selectedChild === filho.id
                       ? 'bg-primary text-background-dark'
-                      : 'bg-gray-700 hover:bg-gray-600 text-white'
+                      : 'bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white'
                   }`}
                 >
-                  <p className="text-sm font-bold leading-normal">
+                  <p className="text-xs sm:text-sm font-bold leading-normal whitespace-nowrap">
                     {filho.full_name || filho.username || 'Filho'}
                   </p>
                 </button>
@@ -138,8 +138,8 @@ function NovaTarefaContent() {
 
           {/* Tipo de Tarefa */}
           <div>
-            <label className="text-white text-sm font-medium mb-2 block">Tipo de Tarefa</label>
-            <div className="grid grid-cols-2 gap-3">
+            <label className="text-white text-xs sm:text-sm font-medium mb-2 block">Tipo de Tarefa</label>
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {[
                 { value: 'licoes', label: 'Lições', icon: 'menu_book' },
                 { value: 'tempo', label: 'Tempo', icon: 'schedule' },
@@ -150,14 +150,14 @@ function NovaTarefaContent() {
                   key={option.value}
                   type="button"
                   onClick={() => setTipo(option.value as any)}
-                  className={`flex flex-col items-center justify-center gap-2 rounded-xl p-4 transition-colors ${
+                  className={`flex flex-col items-center justify-center gap-1.5 sm:gap-2 rounded-xl p-3 sm:p-4 transition-colors touch-manipulation active:opacity-80 ${
                     tipo === option.value
                       ? 'bg-primary text-background-dark'
-                      : 'bg-white/5 text-white hover:bg-white/10'
+                      : 'bg-white/5 text-white hover:bg-white/10 active:bg-white/15'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-3xl">{option.icon}</span>
-                  <p className="text-sm font-bold">{option.label}</p>
+                  <span className="material-symbols-outlined text-2xl sm:text-3xl">{option.icon}</span>
+                  <p className="text-xs sm:text-sm font-bold">{option.label}</p>
                 </button>
               ))}
             </div>
@@ -221,29 +221,29 @@ function NovaTarefaContent() {
 
           {/* Error Message */}
           {error && (
-            <div className="rounded-xl bg-red-500/20 border border-red-500/50 p-4">
-              <p className="text-red-400 text-sm font-medium">{error}</p>
+            <div className="rounded-xl bg-red-500/20 border border-red-500/50 p-3 sm:p-4">
+              <p className="text-red-400 text-xs sm:text-sm font-medium">{error}</p>
             </div>
           )}
 
           {/* Submit Button */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2 sm:gap-3 pt-3 sm:pt-4">
             <Button
               type="button"
               onClick={() => router.back()}
-              className="flex-1 bg-white/20 text-white h-14"
+              className="flex-1 bg-white/20 text-white h-12 sm:h-14 text-sm sm:text-base touch-manipulation"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={isLoading || !selectedChild || !descricao.trim() || !metaValor}
-              className="flex-1 bg-primary text-background-dark h-14 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-primary text-background-dark h-12 sm:h-14 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
-                  <span className="material-symbols-outlined animate-spin">refresh</span>
-                  Criando...
+                  <span className="material-symbols-outlined animate-spin text-lg sm:text-xl">refresh</span>
+                  <span className="text-xs sm:text-sm">Criando...</span>
                 </span>
               ) : (
                 'Criar Tarefa'
