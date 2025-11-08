@@ -39,12 +39,19 @@ if (!supabaseUrl || !supabaseServiceKey) {
   process.exit(1)
 }
 
+// Configurar cliente admin do Supabase
+// Nota: O Supabase pode usar chaves no formato sb_secret_ ou JWT
+// O createClient aceita ambos os formatos
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false,
   },
 })
+
+// Debug: verificar se a chave foi carregada
+console.log(`🔑 URL: ${supabaseUrl}`)
+console.log(`🔑 Service Key (primeiros 20 chars): ${supabaseServiceKey?.substring(0, 20)}...`)
 
 interface UsuarioTeste {
   email: string
