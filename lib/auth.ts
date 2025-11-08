@@ -245,13 +245,15 @@ export async function getProfile(userId: string) {
   try {
     // Verificar se há sessão válida antes de fazer query
     const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
-      // Se não houver sessão, retornar null sem fazer query
+    if (!session || !session.access_token) {
+      // Se não houver sessão ou token, retornar null sem fazer query
+      // Isso evita erros 404 no console
       return { profile: null, error: null }
     }
 
     // Tentar buscar de 'users' primeiro
     // Usar maybeSingle() para não gerar erro se não encontrar (evita 404 no console)
+    // Mas mesmo assim, o navegador pode mostrar 404 se o RLS bloquear
     let { data, error } = await supabase
       .from('users')
       .select('id, email, name, role, avatar_url, created_at, updated_at')
