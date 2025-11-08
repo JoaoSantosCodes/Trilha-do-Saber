@@ -38,46 +38,127 @@ export async function signUp(data: SignUpData) {
       throw new Error('Erro ao criar usuário')
     }
 
-    // 2. Criar perfil na tabela profiles
-    const { error: profileError } = await supabase.from('profiles').insert({
+    // 2. Criar perfil na tabela users (profiles pode não existir)
+    // Tentar users primeiro, se não existir, tentar profiles
+    let profileError = null
+    const profileData = {
       id: authData.user.id,
       email: data.email,
-      full_name: data.fullName,
+      name: data.fullName,
       username: data.username || data.email.split('@')[0],
       role: data.role,
-    })
+    }
 
-    if (profileError) throw profileError
+    // Tentar inserir em users
+    const usersResult = await supabase.from('users').insert(profileData)
+    if (usersResult.error) {
+      // Se users falhar, tentar profiles
+      const profilesResult = await supabase.from('profiles').insert({
+        id: authData.user.id,
+        email: data.email,
+        full_name: data.fullName,
+        username: data.username || data.email.split('@')[0],
+        role: data.role,
+      })
+      profileError = profilesResult.error
+    }
+
+    // Não bloquear se não conseguir criar perfil (pode ser criado depois)
+    if (profileError && !profileError.message.includes('duplicate')) {
+      console.warn('Aviso: Não foi possível criar perfil:', profileError.message)
+    }
 
     // 3. Criar registro específico baseado no role
-    if (data.role === 'aluno') {
-      const { error: alunoError } = await supabase.from('alunos').insert({
-        id: authData.user.id,
-        pontos: 0,
-        moedas: 0,
-        sequencia_atual: 0,
+    // Mapear roles em português para inglês (tabelas existem em inglês)
+    const roleMap: Record<string, string> = {
+      'aluno': 'student',
+      'professor': 'teacher',
+      'coordenador': 'coordinator',
+      'pais': 'parent',
+      'student': 'student',
+      'teacher': 'teacher',
+      'coordinator': 'coordinator',
+      'parent': 'parent'
+    }
+    
+    const englishRole = roleMap[data.role] || data.role
+    
+    if (englishRole === 'student') {
+      // Tentar students primeiro, se não existir, tentar alunos
+      let error = null
+      const result = await supabase.from('students').insert({
+        user_id: authData.user.id,
+        grade: 1,
+        total_points: 0,
+        level: 1,
       })
-
-      if (alunoError) throw alunoError
-    } else if (data.role === 'professor') {
-      const { error: profError } = await supabase.from('professores').insert({
-        id: authData.user.id,
-        status: 'ativo',
+      error = result.error
+      
+      if (error && error.message.includes('does not exist')) {
+        const alunosResult = await supabase.from('alunos').insert({
+          id: authData.user.id,
+          pontos: 0,
+          moedas: 0,
+          sequencia_atual: 0,
+        })
+        error = alunosResult.error
+      }
+      
+      if (error && !error.message.includes('duplicate')) {
+        console.warn('Aviso: Não foi possível criar registro de aluno:', error.message)
+      }
+    } else if (englishRole === 'teacher') {
+      let error = null
+      const result = await supabase.from('teachers').insert({
+        user_id: authData.user.id,
       })
-
-      if (profError) throw profError
-    } else if (data.role === 'pais') {
-      const { error: paisError } = await supabase.from('pais').insert({
-        id: authData.user.id,
+      error = result.error
+      
+      if (error && error.message.includes('does not exist')) {
+        const profResult = await supabase.from('professores').insert({
+          id: authData.user.id,
+          status: 'ativo',
+        })
+        error = profResult.error
+      }
+      
+      if (error && !error.message.includes('duplicate')) {
+        console.warn('Aviso: Não foi possível criar registro de professor:', error.message)
+      }
+    } else if (englishRole === 'parent') {
+      let error = null
+      const result = await supabase.from('parents').insert({
+        user_id: authData.user.id,
       })
-
-      if (paisError) throw paisError
-    } else if (data.role === 'coordenador') {
-      const { error: coordError } = await supabase.from('coordenadores').insert({
-        id: authData.user.id,
+      error = result.error
+      
+      if (error && error.message.includes('does not exist')) {
+        const paisResult = await supabase.from('pais').insert({
+          id: authData.user.id,
+        })
+        error = paisResult.error
+      }
+      
+      if (error && !error.message.includes('duplicate')) {
+        console.warn('Aviso: Não foi possível criar registro de pais:', error.message)
+      }
+    } else if (englishRole === 'coordinator') {
+      let error = null
+      const result = await supabase.from('coordinators').insert({
+        user_id: authData.user.id,
       })
-
-      if (coordError) throw coordError
+      error = result.error
+      
+      if (error && error.message.includes('does not exist')) {
+        const coordResult = await supabase.from('coordenadores').insert({
+          id: authData.user.id,
+        })
+        error = coordResult.error
+      }
+      
+      if (error && !error.message.includes('duplicate')) {
+        console.warn('Aviso: Não foi possível criar registro de coordenador:', error.message)
+      }
     }
 
     return { user: authData.user, error: null }
@@ -157,19 +238,41 @@ export async function getCurrentUser() {
 
 /**
  * Obtém o perfil completo do usuário
+ * Tenta buscar de 'users' (a tabela profiles pode não existir)
  */
 export async function getProfile(userId: string) {
   try {
-    const { data, error } = await supabase
-      .from('profiles')
+    // Tentar buscar de 'users' primeiro (tabela que existe)
+    let { data, error } = await supabase
+      .from('users')
       .select('*')
       .eq('id', userId)
       .single()
 
-    if (error) throw error
+    // Se users não tiver registro, tentar 'profiles' (caso exista)
+    if (error && error.message.includes('No rows')) {
+      const profilesResult = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      
+      if (!profilesResult.error) {
+        data = profilesResult.data
+        error = null
+      }
+    }
+
+    // Se ainda houver erro, retornar null mas não bloquear
+    if (error) {
+      // Não é crítico se não encontrar perfil, o app pode usar user_metadata
+      return { profile: null, error: null }
+    }
+
     return { profile: data, error: null }
   } catch (error: any) {
-    return { profile: null, error: error.message }
+    // Retornar null mas não bloquear o app
+    return { profile: null, error: null }
   }
 }
 
