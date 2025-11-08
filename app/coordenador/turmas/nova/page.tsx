@@ -45,13 +45,34 @@ export default function NovaTurmaPage() {
       const professoresIds = professoresData.map((p) => p.id)
 
       // 2. Buscar perfis dos professores
-      const { data: perfis, error: errPerfis } = await supabase
-        .from('profiles')
-        .select('id, full_name, username')
+      // Tentar users primeiro, depois profiles (fallback)
+      let perfis: any[] | null = null
+      let errPerfis: any = null
+      
+      const usersResult = await supabase
+        .from('users')
+        .select('id, name as full_name, username, role')
         .in('id', professoresIds)
-        .eq('role', 'professor')
+        .eq('role', 'teacher')
 
-      if (errPerfis) throw errPerfis
+      if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+        const profilesResult = await supabase
+          .from('profiles')
+          .select('id, full_name, username')
+          .in('id', professoresIds)
+          .eq('role', 'professor')
+        perfis = profilesResult.data
+        errPerfis = profilesResult.error
+      } else {
+        perfis = usersResult.data?.map((u: any) => ({
+          id: u.id,
+          full_name: u.name || u.full_name,
+          username: u.username
+        })) || null
+        errPerfis = usersResult.error
+      }
+
+      if (errPerfis && !errPerfis.message?.includes('does not exist')) throw errPerfis
 
       const professoresFormatados =
         perfis?.map((perfil) => ({

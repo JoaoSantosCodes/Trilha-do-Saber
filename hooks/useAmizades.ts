@@ -54,17 +54,58 @@ export function useAmizades() {
       }
 
       // Buscar dados dos amigos (perfil + dados do aluno)
-      const { data: perfis, error: errPerfis } = await supabase
-        .from('profiles')
-        .select('id, username, full_name, avatar_url')
+      // Tentar users primeiro, depois profiles (fallback)
+      let perfis: any[] | null = null
+      let errPerfis: any = null
+      
+      const usersResult = await supabase
+        .from('users')
+        .select('id, username, name as full_name, avatar_url')
         .in('id', amigosIds)
+
+      if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+        const profilesResult = await supabase
+          .from('profiles')
+          .select('id, username, full_name, avatar_url')
+          .in('id', amigosIds)
+        perfis = profilesResult.data
+        errPerfis = profilesResult.error
+      } else {
+        perfis = usersResult.data?.map((u: any) => ({
+          id: u.id,
+          username: u.username,
+          full_name: u.name || u.full_name,
+          avatar_url: u.avatar_url
+        })) || null
+        errPerfis = usersResult.error
+      }
 
       if (errPerfis) throw errPerfis
 
-      const { data: dadosAlunos, error: errAlunos } = await supabase
-        .from('alunos')
-        .select('id, pontos, moedas')
-        .in('id', amigosIds)
+      // Tentar students primeiro, depois alunos (fallback)
+      let dadosAlunos: any[] | null = null
+      let errAlunos: any = null
+      
+      const studentsResult = await supabase
+        .from('students')
+        .select('user_id as id, total_points as pontos')
+        .in('user_id', amigosIds)
+
+      if (studentsResult.error && studentsResult.error.message?.includes('does not exist')) {
+        const alunosResult = await supabase
+          .from('alunos')
+          .select('id, pontos, moedas')
+          .in('id', amigosIds)
+        dadosAlunos = alunosResult.data
+        errAlunos = alunosResult.error
+      } else {
+        dadosAlunos = studentsResult.data?.map((s: any) => ({
+          id: s.id,
+          pontos: s.pontos || 0,
+          moedas: 0 // students não tem moedas, usar 0
+        })) || null
+        errAlunos = studentsResult.error
+      }
 
       if (errAlunos) throw errAlunos
 
@@ -154,13 +195,37 @@ export function useAmizades() {
 
     try {
       // Buscar perfis que correspondem ao termo (username ou full_name)
-      const { data: perfis, error: err } = await supabase
-        .from('profiles')
-        .select('id, username, full_name, avatar_url')
-        .eq('role', 'aluno')
-        .neq('id', user.id) // Excluir o próprio usuário
-        .or(`username.ilike.%${termo}%,full_name.ilike.%${termo}%`)
+      // Tentar users primeiro, depois profiles (fallback)
+      let perfis: any[] | null = null
+      let err: any = null
+      
+      const usersResult = await supabase
+        .from('users')
+        .select('id, username, name as full_name, avatar_url, role')
+        .eq('role', 'student')
+        .neq('id', user.id)
+        .or(`username.ilike.%${termo}%,name.ilike.%${termo}%`)
         .limit(20)
+
+      if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+        const profilesResult = await supabase
+          .from('profiles')
+          .select('id, username, full_name, avatar_url')
+          .eq('role', 'aluno')
+          .neq('id', user.id)
+          .or(`username.ilike.%${termo}%,full_name.ilike.%${termo}%`)
+          .limit(20)
+        perfis = profilesResult.data
+        err = profilesResult.error
+      } else {
+        perfis = usersResult.data?.map((u: any) => ({
+          id: u.id,
+          username: u.username,
+          full_name: u.name || u.full_name,
+          avatar_url: u.avatar_url
+        })) || null
+        err = usersResult.error
+      }
 
       if (err) throw err
 
@@ -224,10 +289,31 @@ export function useAmizades() {
       if (solicitantesIds.length === 0) return []
 
       // Buscar perfis dos solicitantes
-      const { data: perfis, error: errPerfis } = await supabase
-        .from('profiles')
-        .select('id, username, full_name, avatar_url')
+      // Tentar users primeiro, depois profiles (fallback)
+      let perfis: any[] | null = null
+      let errPerfis: any = null
+      
+      const usersResult = await supabase
+        .from('users')
+        .select('id, username, name as full_name, avatar_url')
         .in('id', solicitantesIds)
+
+      if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+        const profilesResult = await supabase
+          .from('profiles')
+          .select('id, username, full_name, avatar_url')
+          .in('id', solicitantesIds)
+        perfis = profilesResult.data
+        errPerfis = profilesResult.error
+      } else {
+        perfis = usersResult.data?.map((u: any) => ({
+          id: u.id,
+          username: u.username,
+          full_name: u.name || u.full_name,
+          avatar_url: u.avatar_url
+        })) || null
+        errPerfis = usersResult.error
+      }
 
       if (errPerfis) throw errPerfis
 

@@ -62,13 +62,35 @@ export function useChat(conversaId?: string) {
           : conversaData.participante_1_id
 
       // 3. Buscar perfil do outro participante
-      const { data: perfilOutro, error: errPerfil } = await supabase
-        .from('profiles')
-        .select('id, full_name, username, avatar_url')
+      // Tentar users primeiro, depois profiles (fallback)
+      let perfilOutro: any = null
+      let errPerfil: any = null
+      
+      const usersResult = await supabase
+        .from('users')
+        .select('id, name as full_name, username, avatar_url')
         .eq('id', outroParticipanteId)
         .single()
 
-      if (errPerfil) throw errPerfil
+      if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+        const profilesResult = await supabase
+          .from('profiles')
+          .select('id, full_name, username, avatar_url')
+          .eq('id', outroParticipanteId)
+          .single()
+        perfilOutro = profilesResult.data
+        errPerfil = profilesResult.error
+      } else {
+        perfilOutro = usersResult.data ? {
+          id: usersResult.data.id,
+          full_name: usersResult.data.name || usersResult.data.full_name,
+          username: usersResult.data.username,
+          avatar_url: usersResult.data.avatar_url
+        } : null
+        errPerfil = usersResult.error
+      }
+
+      if (errPerfil && !errPerfil.message?.includes('No rows')) throw errPerfil
 
       setConversa({
         ...conversaData,
@@ -98,12 +120,34 @@ export function useChat(conversaId?: string) {
 
       // 2. Buscar perfis dos remetentes
       const remetentesIds = [...new Set(mensagensData?.map((m) => m.remetente_id) || [])]
-      const { data: perfis, error: errPerfis } = await supabase
-        .from('profiles')
-        .select('id, full_name, username, avatar_url')
+      
+      // Tentar users primeiro, depois profiles (fallback)
+      let perfis: any[] | null = null
+      let errPerfis: any = null
+      
+      const usersResult = await supabase
+        .from('users')
+        .select('id, name as full_name, username, avatar_url')
         .in('id', remetentesIds)
 
-      if (errPerfis) throw errPerfis
+      if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+        const profilesResult = await supabase
+          .from('profiles')
+          .select('id, full_name, username, avatar_url')
+          .in('id', remetentesIds)
+        perfis = profilesResult.data
+        errPerfis = profilesResult.error
+      } else {
+        perfis = usersResult.data?.map((u: any) => ({
+          id: u.id,
+          full_name: u.name || u.full_name,
+          username: u.username,
+          avatar_url: u.avatar_url
+        })) || null
+        errPerfis = usersResult.error
+      }
+
+      if (errPerfis && !errPerfis.message?.includes('does not exist')) throw errPerfis
 
       // 3. Combinar mensagens com perfis
       const mensagensCompletas: Mensagem[] = (mensagensData || []).map((msg) => {
@@ -150,11 +194,30 @@ export function useChat(conversaId?: string) {
         .eq('id', conversaId)
 
       // 3. Buscar perfil do remetente para adicionar à mensagem
-      const { data: perfil } = await supabase
-        .from('profiles')
-        .select('id, full_name, username, avatar_url')
+      // Tentar users primeiro, depois profiles (fallback)
+      let perfil: any = null
+      
+      const usersResult = await supabase
+        .from('users')
+        .select('id, name as full_name, username, avatar_url')
         .eq('id', user.id)
         .single()
+
+      if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+        const profilesResult = await supabase
+          .from('profiles')
+          .select('id, full_name, username, avatar_url')
+          .eq('id', user.id)
+          .single()
+        perfil = profilesResult.data
+      } else {
+        perfil = usersResult.data ? {
+          id: usersResult.data.id,
+          full_name: usersResult.data.name || usersResult.data.full_name,
+          username: usersResult.data.username,
+          avatar_url: usersResult.data.avatar_url
+        } : null
+      }
 
       const mensagemCompleta: Mensagem = {
         ...novaMensagem,
@@ -229,11 +292,30 @@ export function useChat(conversaId?: string) {
           const novaMensagem = payload.new as any
 
           // Buscar perfil do remetente
-          const { data: perfil } = await supabase
-            .from('profiles')
-            .select('id, full_name, username, avatar_url')
+          // Tentar users primeiro, depois profiles (fallback)
+          let perfil: any = null
+          
+          const usersResult = await supabase
+            .from('users')
+            .select('id, name as full_name, username, avatar_url')
             .eq('id', novaMensagem.remetente_id)
             .single()
+
+          if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+            const profilesResult = await supabase
+              .from('profiles')
+              .select('id, full_name, username, avatar_url')
+              .eq('id', novaMensagem.remetente_id)
+              .single()
+            perfil = profilesResult.data
+          } else {
+            perfil = usersResult.data ? {
+              id: usersResult.data.id,
+              full_name: usersResult.data.name || usersResult.data.full_name,
+              username: usersResult.data.username,
+              avatar_url: usersResult.data.avatar_url
+            } : null
+          }
 
           const mensagemCompleta: Mensagem = {
             ...novaMensagem,

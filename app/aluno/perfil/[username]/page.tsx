@@ -91,24 +91,72 @@ export default function PerfilPublicoPage() {
       setError(null)
 
       // Buscar perfil por username ou id
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, username, full_name, avatar_url')
+      // Tentar users primeiro, depois profiles (fallback)
+      let profile: any = null
+      let profileError: any = null
+      
+      const usersResult = await supabase
+        .from('users')
+        .select('id, username, name as full_name, avatar_url, role')
         .or(`username.eq.${username},id.eq.${username}`)
-        .eq('role', 'aluno')
+        .eq('role', 'student')
         .single()
 
-      if (profileError) throw profileError
+      if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+        const profilesResult = await supabase
+          .from('profiles')
+          .select('id, username, full_name, avatar_url')
+          .or(`username.eq.${username},id.eq.${username}`)
+          .eq('role', 'aluno')
+          .single()
+        profile = profilesResult.data
+        profileError = profilesResult.error
+      } else {
+        profile = usersResult.data ? {
+          id: usersResult.data.id,
+          username: usersResult.data.username,
+          full_name: usersResult.data.name || usersResult.data.full_name,
+          avatar_url: usersResult.data.avatar_url
+        } : null
+        profileError = usersResult.error
+      }
+
+      if (profileError && !profileError.message?.includes('No rows')) throw profileError
       if (!profile) throw new Error('Perfil não encontrado')
 
       // Buscar dados do aluno
-      const { data: aluno, error: alunoError } = await supabase
-        .from('alunos')
+      // Tentar students primeiro, depois alunos (fallback)
+      let aluno: any = null
+      let alunoError: any = null
+      
+      const studentsResult = await supabase
+        .from('students')
         .select('*')
-        .eq('id', profile.id)
+        .eq('user_id', profile.id)
         .single()
 
-      if (alunoError) throw alunoError
+      if (studentsResult.error && studentsResult.error.message?.includes('does not exist')) {
+        const alunosResult = await supabase
+          .from('alunos')
+          .select('*')
+          .eq('id', profile.id)
+          .single()
+        aluno = alunosResult.data
+        alunoError = alunosResult.error
+      } else {
+        // Mapear students para formato de alunos
+        aluno = studentsResult.data ? {
+          id: studentsResult.data.user_id,
+          pontos: studentsResult.data.total_points || 0,
+          moedas: 0, // students não tem moedas
+          sequencia_atual: 0,
+          cor_fundo_perfil: '#E57373',
+          icone_conquista_favorito: null
+        } : null
+        alunoError = studentsResult.error
+      }
+
+      if (alunoError && !alunoError.message?.includes('No rows')) throw alunoError
 
       setPerfil({
         id: profile.id,

@@ -72,13 +72,30 @@ export default function EditarPerfilPage() {
         if (err && err.code !== 'PGRST116') throw err
 
         if (alunoPais) {
-          const { data: paisProfile, error: errPais } = await supabase
-            .from('profiles')
+          // Tentar users primeiro, depois profiles (fallback)
+          let paisProfile: any = null
+          let errPais: any = null
+          
+          const usersResult = await supabase
+            .from('users')
             .select('email')
             .eq('id', alunoPais.pais_id)
             .single()
 
-          if (errPais) throw errPais
+          if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+            const profilesResult = await supabase
+              .from('profiles')
+              .select('email')
+              .eq('id', alunoPais.pais_id)
+              .single()
+            paisProfile = profilesResult.data
+            errPais = profilesResult.error
+          } else {
+            paisProfile = usersResult.data
+            errPais = usersResult.error
+          }
+
+          if (errPais && errPais.code !== 'PGRST116') throw errPais
           if (paisProfile) {
             setParentEmail(paisProfile.email)
           }
@@ -101,10 +118,23 @@ export default function EditarPerfilPage() {
 
       // Atualizar perfil (username)
       if (profile) {
-        const { error: profileError } = await supabase
-          .from('profiles')
+        // Tentar users primeiro, depois profiles (fallback)
+        let profileError: any = null
+        
+        const usersResult = await supabase
+          .from('users')
           .update({ username })
           .eq('id', profile.id)
+
+        if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+          const profilesResult = await supabase
+            .from('profiles')
+            .update({ username })
+            .eq('id', profile.id)
+          profileError = profilesResult.error
+        } else {
+          profileError = usersResult.error
+        }
 
         if (profileError) throw profileError
       }

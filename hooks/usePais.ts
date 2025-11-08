@@ -74,21 +74,63 @@ export function usePais() {
       const alunosIds = relacoes.map((r) => r.aluno_id)
 
       // 2. Buscar perfis dos filhos
-      const { data: perfis, error: errPerfis } = await supabase
-        .from('profiles')
-        .select('id, username, full_name, avatar_url')
+      // Tentar users primeiro, depois profiles (fallback)
+      let perfis: any[] | null = null
+      let errPerfis: any = null
+      
+      const usersResult = await supabase
+        .from('users')
+        .select('id, username, name as full_name, avatar_url, role')
         .in('id', alunosIds)
-        .eq('role', 'aluno')
+        .eq('role', 'student')
 
-      if (errPerfis) throw errPerfis
+      if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+        const profilesResult = await supabase
+          .from('profiles')
+          .select('id, username, full_name, avatar_url')
+          .in('id', alunosIds)
+          .eq('role', 'aluno')
+        perfis = profilesResult.data
+        errPerfis = profilesResult.error
+      } else {
+        perfis = usersResult.data?.map((u: any) => ({
+          id: u.id,
+          username: u.username,
+          full_name: u.name || u.full_name,
+          avatar_url: u.avatar_url
+        })) || null
+        errPerfis = usersResult.error
+      }
+
+      if (errPerfis && !errPerfis.message?.includes('does not exist')) throw errPerfis
 
       // 3. Buscar dados dos alunos
-      const { data: dadosAlunos, error: errAlunos } = await supabase
-        .from('alunos')
-        .select('id, pontos, moedas')
-        .in('id', alunosIds)
+      // Tentar students primeiro, depois alunos (fallback)
+      let dadosAlunos: any[] | null = null
+      let errAlunos: any = null
+      
+      const studentsResult = await supabase
+        .from('students')
+        .select('user_id as id, total_points as pontos')
+        .in('user_id', alunosIds)
 
-      if (errAlunos) throw errAlunos
+      if (studentsResult.error && studentsResult.error.message?.includes('does not exist')) {
+        const alunosResult = await supabase
+          .from('alunos')
+          .select('id, pontos, moedas')
+          .in('id', alunosIds)
+        dadosAlunos = alunosResult.data
+        errAlunos = alunosResult.error
+      } else {
+        dadosAlunos = studentsResult.data?.map((s: any) => ({
+          id: s.id,
+          pontos: s.pontos || 0,
+          moedas: 0 // students não tem moedas
+        })) || null
+        errAlunos = studentsResult.error
+      }
+
+      if (errAlunos && !errAlunos.message?.includes('does not exist')) throw errAlunos
 
       // 4. Combinar dados
       const filhosCompletos: Filho[] = (perfis || []).map((perfil) => {

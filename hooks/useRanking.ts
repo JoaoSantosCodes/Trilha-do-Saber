@@ -78,13 +78,35 @@ export function useRanking(tipo: 'amigos' | 'global' = 'global') {
 
         // 3. Buscar perfis dos alunos
         const alunosIds = Array.from(amigosIds)
-        const { data: perfis, error: perfisError } = await supabase
-          .from('profiles')
-          .select('id, username, full_name, avatar_url')
+        // Tentar users primeiro, depois profiles (fallback)
+        let perfis: any[] | null = null
+        let perfisError: any = null
+        
+        const usersResult = await supabase
+          .from('users')
+          .select('id, username, name as full_name, avatar_url, role')
           .in('id', alunosIds)
-          .eq('role', 'aluno')
+          .eq('role', 'student')
 
-        if (perfisError) throw perfisError
+        if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+          const profilesResult = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url')
+            .in('id', alunosIds)
+            .eq('role', 'aluno')
+          perfis = profilesResult.data
+          perfisError = profilesResult.error
+        } else {
+          perfis = usersResult.data?.map((u: any) => ({
+            id: u.id,
+            username: u.username,
+            full_name: u.name || u.full_name,
+            avatar_url: u.avatar_url
+          })) || null
+          perfisError = usersResult.error
+        }
+
+        if (perfisError && !perfisError.message?.includes('does not exist')) throw perfisError
 
         // 4. Combinar dados e calcular posições
         const rankingCompleto: AlunoRanking[] = perfis
@@ -126,13 +148,35 @@ export function useRanking(tipo: 'amigos' | 'global' = 'global') {
           return
         }
 
-        const { data: perfis, error: perfisError } = await supabase
-          .from('profiles')
-          .select('id, username, full_name, avatar_url')
+        // Tentar users primeiro, depois profiles (fallback)
+        let perfis: any[] | null = null
+        let perfisError: any = null
+        
+        const usersResult = await supabase
+          .from('users')
+          .select('id, username, name as full_name, avatar_url, role')
           .in('id', alunosIds)
-          .eq('role', 'aluno')
+          .eq('role', 'student')
 
-        if (perfisError) throw perfisError
+        if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+          const profilesResult = await supabase
+            .from('profiles')
+            .select('id, username, full_name, avatar_url')
+            .in('id', alunosIds)
+            .eq('role', 'aluno')
+          perfis = profilesResult.data
+          perfisError = profilesResult.error
+        } else {
+          perfis = usersResult.data?.map((u: any) => ({
+            id: u.id,
+            username: u.username,
+            full_name: u.name || u.full_name,
+            avatar_url: u.avatar_url
+          })) || null
+          perfisError = usersResult.error
+        }
+
+        if (perfisError && !perfisError.message?.includes('does not exist')) throw perfisError
 
         // Combinar dados e calcular posições
         const rankingCompleto: AlunoRanking[] = (progressoSemanal || [])
