@@ -244,11 +244,12 @@ export async function getCurrentUser() {
 export async function getProfile(userId: string) {
   try {
     // Tentar buscar de 'users' primeiro
+    // Usar maybeSingle() para não gerar erro se não encontrar (evita 404 no console)
     let { data, error } = await supabase
       .from('users')
       .select('id, email, name, role, avatar_url, created_at, updated_at')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
 
     // Se users não existir ou não tiver registro, tentar 'profiles'
     if (error) {
@@ -259,7 +260,7 @@ export async function getProfile(userId: string) {
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .single()
+            .maybeSingle()
           
           if (!profilesResult.error) {
             data = profilesResult.data
