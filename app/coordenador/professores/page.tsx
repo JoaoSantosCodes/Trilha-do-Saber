@@ -62,39 +62,39 @@ export default function GerenciarProfessoresPage() {
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background-dark text-text-dark overflow-x-hidden">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex flex-col bg-background-dark">
-        <div className="flex items-center p-4 justify-between min-h-[72px]">
-          <div className="flex size-12 shrink-0 items-center justify-start text-white">
-            <button onClick={() => router.back()}>
-              <span className="material-symbols-outlined text-3xl">arrow_back</span>
+      <div className="sticky top-0 z-10 flex flex-col bg-background-dark safe-area-top">
+        <div className="flex items-center p-3 sm:p-4 justify-between min-h-[64px] sm:min-h-[72px]">
+          <div className="flex size-10 sm:size-12 shrink-0 items-center justify-start text-white">
+            <button onClick={() => router.back()} className="touch-manipulation active:opacity-70" aria-label="Voltar">
+              <span className="material-symbols-outlined text-2xl sm:text-3xl">arrow_back</span>
             </button>
           </div>
-          <h1 className="text-white text-xl font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+          <h1 className="text-white text-base sm:text-xl font-bold leading-tight tracking-[-0.015em] flex-1 text-center px-2 truncate">
             Gerenciar Professores
           </h1>
-          <div className="flex w-12 items-center justify-end">
-            <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 bg-transparent text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0">
-              <span className="material-symbols-outlined text-3xl">search</span>
+          <div className="flex w-10 sm:w-12 items-center justify-end">
+            <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 sm:h-12 bg-transparent text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0 touch-manipulation active:opacity-70" aria-label="Buscar">
+              <span className="material-symbols-outlined text-2xl sm:text-3xl">search</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Teacher List */}
-      <main className="flex-1 px-4 pb-28 pt-4">
+      <main className="flex-1 px-3 sm:px-4 pb-24 sm:pb-28 pt-3 sm:pt-4 overflow-y-auto smooth-scroll">
         {/* Filters */}
-        <div className="flex flex-col gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <span className="text-gray-400 text-sm">Filtrar por status:</span>
+        <div className="flex flex-col gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-gray-400 text-xs sm:text-sm">Filtrar por status:</span>
             <div className="flex gap-2">
               {(['todos', 'ativo', 'inativo'] as const).map((status) => (
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
-                  className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                  className={`px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm transition-colors touch-manipulation active:opacity-80 ${
                     statusFilter === status
                       ? 'bg-primary text-white'
-                      : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                      : 'bg-white/5 text-gray-400 hover:bg-white/10 active:bg-white/15'
                   }`}
                 >
                   {status === 'todos' ? 'Todos' : status === 'ativo' ? 'Ativos' : 'Inativos'}
@@ -102,12 +102,12 @@ export default function GerenciarProfessoresPage() {
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-gray-400 text-sm">Ordenar por:</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-gray-400 text-xs sm:text-sm">Ordenar por:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'nome' | 'status')}
-              className="rounded-lg bg-white/5 border border-white/10 px-3 py-1 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="rounded-lg bg-white/5 border border-white/10 px-2 sm:px-3 py-1 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary touch-manipulation"
             >
               <option value="nome">Nome</option>
               <option value="status">Status</option>
@@ -115,33 +115,33 @@ export default function GerenciarProfessoresPage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2 sm:gap-3">
           {loading ? (
             <LoadingSkeleton type="list" count={5} />
           ) : filteredAndSortedProfessores.length > 0 ? (
             filteredAndSortedProfessores.map((professor) => (
             <div
               key={professor.id}
-              className="flex cursor-pointer items-center gap-4 rounded-lg bg-white/5 p-4 transition-colors hover:bg-white/10"
+              className="flex cursor-pointer items-center gap-3 sm:gap-4 rounded-lg bg-white/5 p-3 sm:p-4 transition-colors hover:bg-white/10 active:bg-white/15 touch-manipulation"
               onClick={() => router.push(`/coordenador/professores/${professor.id}`)}
             >
               <div className="flex-shrink-0">
                 <div
-                  className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14"
+                  className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 sm:h-14 sm:w-14"
                   style={{ backgroundImage: `url('${professor.avatar}')` }}
                 />
               </div>
-              <div className="flex flex-1 flex-col justify-center">
-                <p className="text-white text-base font-medium leading-normal line-clamp-1">
+              <div className="flex flex-1 flex-col justify-center min-w-0">
+                <p className="text-white text-sm sm:text-base font-medium leading-normal line-clamp-1 truncate">
                   {professor.nome}
                 </p>
-                <p className="text-gray-400 text-sm font-normal leading-normal line-clamp-2">
+                <p className="text-gray-400 text-xs sm:text-sm font-normal leading-normal line-clamp-2">
                   {professor.turmas}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <div
-                  className={`flex items-center justify-center rounded-full px-3 py-1 ${
+                  className={`flex items-center justify-center rounded-full px-2 sm:px-3 py-1 ${
                     professor.status === 'ativo'
                       ? 'bg-green-500/20'
                       : 'bg-zinc-500/20'
@@ -174,13 +174,13 @@ export default function GerenciarProfessoresPage() {
       </main>
 
       {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6 z-20">
+      <div className="fixed bottom-4 sm:bottom-6 right-3 sm:right-6 z-20 safe-area-right safe-area-bottom">
         <Button
           onClick={() => router.push('/coordenador/professores/novo')}
-          className="flex h-16 w-auto items-center justify-center gap-3 rounded-full bg-primary pl-6 pr-6 text-white shadow-lg transition-transform hover:scale-105"
+          className="flex h-14 sm:h-16 w-auto items-center justify-center gap-2 sm:gap-3 rounded-full bg-primary pl-4 pr-4 sm:pl-6 sm:pr-6 text-white shadow-lg transition-transform hover:scale-105 active:scale-95 touch-manipulation"
         >
-          <span className="material-symbols-outlined text-3xl">add</span>
-          <span className="text-base font-bold">Adicionar Novo Professor</span>
+          <span className="material-symbols-outlined text-2xl sm:text-3xl">add</span>
+          <span className="text-sm sm:text-base font-bold whitespace-nowrap hidden sm:inline">Adicionar Novo Professor</span>
         </Button>
       </div>
     </div>
