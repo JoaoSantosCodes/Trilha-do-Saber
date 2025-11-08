@@ -61,12 +61,24 @@ Adaptar o projeto **Trilha do Saber** para funcionar perfeitamente em dispositiv
 - ✅ **SubjectCard** - Responsividade mobile
 - ✅ **StatCard** - Responsividade mobile
 - ✅ **StudentCard** - Responsividade mobile
-- ⏳ **Modals** - Ajustar para mobile (próximo passo)
-- ⏳ **EmptyState** - Ajustar para mobile (próximo passo)
+- ✅ **EmptyState** - Responsividade mobile
+- ✅ **LoadingSkeleton** - Responsividade mobile
+- ✅ **PageLoading** - Safe area, responsivo
 
-### 5. Páginas Principais
+### 5. Modals Otimizados
 
-- ⏳ **Login/Cadastro** - Ajustar layout mobile (próximo passo)
+- ✅ **ConfirmPurchaseModal** - Safe area, responsivo
+- ✅ **ConfirmClassJoinModal** - Safe area, responsivo
+- ✅ **LoginErrorModal** - Safe area, responsivo
+- ✅ **MissionCompleteModal** - Safe area, responsivo
+- ✅ **SequenceProtectedModal** - Safe area, responsivo
+- ✅ **PurchaseSuccessModal** - Safe area, responsivo
+
+### 6. Páginas Otimizadas
+
+- ✅ **Login** - Títulos e espaçamentos responsivos
+- ✅ **Cadastro** - Títulos e espaçamentos responsivos
+- ✅ **Esqueci Senha** - Títulos e espaçamentos responsivos
 - ⏳ **Dashboard** - Grid responsivo (próximo passo)
 - ⏳ **Listas** - Scroll otimizado (próximo passo)
 - ⏳ **Chat** - Interface mobile-first (próximo passo)
@@ -89,12 +101,14 @@ Adaptar o projeto **Trilha do Saber** para funcionar perfeitamente em dispositiv
 - [x] SubjectCard otimizado
 - [x] StatCard otimizado
 - [x] StudentCard otimizado
-- [ ] Modals mobile-friendly
-- [ ] EmptyState mobile-friendly
-- [ ] LoadingSkeleton mobile-friendly
+- [x] EmptyState otimizado
+- [x] LoadingSkeleton otimizado
+- [x] PageLoading otimizado
+- [x] Modals mobile-friendly (6/6)
 
 ### Páginas
-- [ ] Login/Cadastro
+- [x] Login/Cadastro
+- [x] Esqueci Senha
 - [ ] Dashboard
 - [ ] Listas
 - [ ] Chat
