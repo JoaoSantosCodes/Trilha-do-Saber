@@ -19,7 +19,7 @@ export default function MateriasPage() {
     return (
       <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-dark overflow-x-hidden text-white">
         <Header />
-        <main className="flex-grow p-4">
+        <main className="flex-grow p-3 sm:p-4">
           <h1 className="text-gray-100 tracking-tight text-xl sm:text-2xl md:text-[32px] font-bold leading-tight text-left pb-2 sm:pb-3 pt-4 sm:pt-6">
             Qual matéria vamos estudar hoje?
           </h1>
@@ -35,13 +35,13 @@ export default function MateriasPage() {
     return (
       <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-dark overflow-x-hidden text-white">
         <Header />
-        <main className="flex-grow flex items-center justify-center p-4">
-          <div className="flex flex-col items-center gap-4 text-center">
-            <span className="material-symbols-outlined text-red-400 text-4xl">error</span>
-            <p className="text-red-400">Erro ao carregar matérias: {error}</p>
+        <main className="flex-grow flex items-center justify-center p-3 sm:p-4">
+          <div className="flex flex-col items-center gap-3 sm:gap-4 text-center px-3 sm:px-4">
+            <span className="material-symbols-outlined text-red-400 text-3xl sm:text-4xl">error</span>
+            <p className="text-red-400 text-sm sm:text-base break-words">Erro ao carregar matérias: {error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="text-primary hover:underline"
+              className="text-primary hover:underline text-sm sm:text-base touch-manipulation active:opacity-70"
             >
               Tentar novamente
             </button>
