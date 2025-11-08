@@ -87,25 +87,25 @@ export default function EnviarComunicadoPage() {
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background-dark text-gray-200">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center bg-background-dark/80 p-4 pb-2 backdrop-blur-sm justify-between">
-        <div className="flex size-12 shrink-0 items-center justify-start">
-          <button onClick={() => router.back()}>
-            <span className="material-symbols-outlined text-white text-2xl">arrow_back</span>
+      <div className="sticky top-0 z-10 flex items-center bg-background-dark/95 p-3 sm:p-4 pb-2 backdrop-blur-sm justify-between safe-area-top">
+        <div className="flex size-10 sm:size-12 shrink-0 items-center justify-start">
+          <button onClick={() => router.back()} className="touch-manipulation active:opacity-70" aria-label="Voltar">
+            <span className="material-symbols-outlined text-white text-xl sm:text-2xl">arrow_back</span>
           </button>
         </div>
-        <h1 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+        <h1 className="text-white text-base sm:text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center px-2 truncate">
           Enviar Comunicado
         </h1>
-        <div className="flex w-12 items-center justify-end"></div>
+        <div className="flex w-10 sm:w-12 items-center justify-end"></div>
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 py-4 overflow-y-auto">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <main className="flex-1 px-3 sm:px-4 py-3 sm:py-4 overflow-y-auto smooth-scroll pb-24 sm:pb-28 safe-area-bottom">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-6">
           {/* Tipo de Comunicado */}
           <div>
-            <label className="text-white text-sm font-medium mb-2 block">Tipo de Comunicado</label>
-            <div className="grid grid-cols-3 gap-3">
+            <label className="text-white text-xs sm:text-sm font-medium mb-2 block">Tipo de Comunicado</label>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {[
                 { value: 'geral', label: 'Geral', icon: 'public' },
                 { value: 'turma', label: 'Turma', icon: 'groups' },
@@ -115,14 +115,14 @@ export default function EnviarComunicadoPage() {
                   key={option.value}
                   type="button"
                   onClick={() => setTipo(option.value as any)}
-                  className={`flex flex-col items-center justify-center gap-2 rounded-xl p-4 transition-colors ${
+                  className={`flex flex-col items-center justify-center gap-1.5 sm:gap-2 rounded-xl p-3 sm:p-4 transition-colors touch-manipulation active:opacity-80 ${
                     tipo === option.value
                       ? 'bg-primary text-background-dark'
-                      : 'bg-white/5 text-white hover:bg-white/10'
+                      : 'bg-white/5 text-white hover:bg-white/10 active:bg-white/15'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-3xl">{option.icon}</span>
-                  <p className="text-sm font-bold">{option.label}</p>
+                  <span className="material-symbols-outlined text-2xl sm:text-3xl">{option.icon}</span>
+                  <p className="text-xs sm:text-sm font-bold">{option.label}</p>
                 </button>
               ))}
             </div>
@@ -131,11 +131,11 @@ export default function EnviarComunicadoPage() {
           {/* Seleção de Turma (se tipo for turma) */}
           {tipo === 'turma' && (
             <div>
-              <label className="text-white text-sm font-medium mb-2 block">Selecionar Turma</label>
+              <label className="text-white text-xs sm:text-sm font-medium mb-2 block">Selecionar Turma</label>
               <select
                 value={turmaSelecionada}
                 onChange={(e) => setTurmaSelecionada(e.target.value)}
-                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-xl bg-white/5 border border-white/10 px-3 sm:px-4 py-2.5 sm:py-3 text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary touch-manipulation"
                 required
               >
                 <option value="">Selecione uma turma</option>
@@ -161,21 +161,21 @@ export default function EnviarComunicadoPage() {
 
           {/* Conteúdo */}
           <div>
-            <label className="text-white text-sm font-medium mb-2 block">Conteúdo</label>
+            <label className="text-white text-xs sm:text-sm font-medium mb-2 block">Conteúdo</label>
             <textarea
               value={conteudo}
               onChange={(e) => setConteudo(e.target.value)}
               placeholder="Digite o conteúdo do comunicado..."
-              rows={8}
-              className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              rows={6}
+              className="w-full rounded-xl bg-white/5 border border-white/10 px-3 sm:px-4 py-2.5 sm:py-3 text-white text-sm sm:text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary resize-none touch-manipulation"
               required
             />
           </div>
 
           {/* Success Message */}
           {success && (
-            <div className="rounded-xl bg-green-500/20 border border-green-500/50 p-4">
-              <p className="text-green-400 text-sm font-medium">
+            <div className="rounded-xl bg-green-500/20 border border-green-500/50 p-3 sm:p-4">
+              <p className="text-green-400 text-xs sm:text-sm font-medium">
                 Comunicado enviado com sucesso! Redirecionando...
               </p>
             </div>
@@ -183,29 +183,29 @@ export default function EnviarComunicadoPage() {
 
           {/* Error Message */}
           {error && (
-            <div className="rounded-xl bg-red-500/20 border border-red-500/50 p-4">
-              <p className="text-red-400 text-sm font-medium">{error}</p>
+            <div className="rounded-xl bg-red-500/20 border border-red-500/50 p-3 sm:p-4">
+              <p className="text-red-400 text-xs sm:text-sm font-medium">{error}</p>
             </div>
           )}
 
           {/* Submit Button */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2 sm:gap-3 pt-3 sm:pt-4">
             <Button
               type="button"
               onClick={() => router.back()}
-              className="flex-1 bg-white/20 text-white h-14"
+              className="flex-1 bg-white/20 text-white h-12 sm:h-14 text-sm sm:text-base touch-manipulation"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={isLoading || success}
-              className="flex-1 bg-primary text-background-dark h-14 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-primary text-background-dark h-12 sm:h-14 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
-                  <span className="material-symbols-outlined animate-spin">refresh</span>
-                  Enviando...
+                  <span className="material-symbols-outlined animate-spin text-lg sm:text-xl">refresh</span>
+                  <span className="text-xs sm:text-sm">Enviando...</span>
                 </span>
               ) : (
                 'Enviar Comunicado'
