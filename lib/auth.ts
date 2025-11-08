@@ -238,22 +238,22 @@ export async function getCurrentUser() {
 
 /**
  * Obtém o perfil completo do usuário
- * Tenta buscar de 'users' (a tabela profiles pode não existir)
  * Não gera erros no console se a tabela não existir
+ * Retorna null silenciosamente se não encontrar perfil
  */
 export async function getProfile(userId: string) {
   try {
-    // Tentar buscar de 'users' primeiro (tabela que existe)
+    // Tentar buscar de 'users' primeiro
     let { data, error } = await supabase
       .from('users')
       .select('id, email, name, role, avatar_url, created_at, updated_at')
       .eq('id', userId)
       .single()
 
-    // Se users não tiver registro ou tabela não existir, tentar 'profiles' (caso exista)
+    // Se users não existir ou não tiver registro, tentar 'profiles'
     if (error) {
       // Se for erro de "does not exist" ou "No rows", tentar profiles
-      if (error.message?.includes('does not exist') || error.message?.includes('No rows')) {
+      if (error.message?.includes('does not exist') || error.message?.includes('No rows') || error.code === 'PGRST116' || error.code === '42P01') {
         try {
           const profilesResult = await supabase
             .from('profiles')
@@ -266,14 +266,17 @@ export async function getProfile(userId: string) {
             error = null
           } else {
             // Se profiles também não existir, retornar null sem erro
+            // Não é crítico, o app pode usar user_metadata do Supabase Auth
             return { profile: null, error: null }
           }
         } catch (profilesError: any) {
-          // Se profiles não existir, retornar null sem erro
+          // Se profiles não existir ou der erro, retornar null sem erro
+          // Não é crítico, o app pode usar user_metadata do Supabase Auth
           return { profile: null, error: null }
         }
       } else {
-        // Outros erros, retornar null sem bloquear
+        // Outros erros (404, etc), retornar null sem bloquear
+        // Não é crítico, o app pode usar user_metadata do Supabase Auth
         return { profile: null, error: null }
       }
     }
@@ -287,6 +290,7 @@ export async function getProfile(userId: string) {
     return { profile: data, error: null }
   } catch (error: any) {
     // Retornar null mas não bloquear o app - não logar erro
+    // Não é crítico, o app pode usar user_metadata do Supabase Auth
     return { profile: null, error: null }
   }
 }

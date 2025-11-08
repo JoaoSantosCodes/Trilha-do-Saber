@@ -83,8 +83,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadProfile = async (userId: string) => {
     try {
-      const { profile, error } = await getProfile(userId)
-      // getProfile sempre retorna error: null, então não precisa verificar
+      // getProfile retorna null silenciosamente se a tabela não existir
+      // Não é crítico, o app pode usar user_metadata do Supabase Auth
+      const { profile } = await getProfile(userId)
       setProfile(profile)
     } catch (error: any) {
       // Não bloquear o app se não conseguir carregar o perfil
