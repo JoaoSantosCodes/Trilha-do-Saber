@@ -99,10 +99,25 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
+  // Função helper para normalizar roles (aceita inglês e português)
+  const normalizeRole = (role: string): string => {
+    const roleMap: Record<string, string> = {
+      'student': 'aluno',
+      'teacher': 'professor',
+      'coordinator': 'coordenador',
+      'parent': 'pais',
+      'aluno': 'aluno',
+      'professor': 'professor',
+      'coordenador': 'coordenador',
+      'pais': 'pais'
+    }
+    return roleMap[role] || role
+  }
+
   // Se está autenticado e tentando acessar rota de login/cadastro
   if (session && (pathname === '/login' || pathname === '/cadastro' || pathname === '/boas-vindas')) {
     // Redirecionar baseado no role
-    const role = session.user.user_metadata?.role || 'aluno'
+    const role = normalizeRole(session.user.user_metadata?.role || 'aluno')
     let redirectPath = '/aluno/materias'
 
     if (role === 'professor') redirectPath = '/professor/painel'
@@ -114,7 +129,7 @@ export async function middleware(req: NextRequest) {
 
   // Verificar permissões por role (se necessário)
   if (session) {
-    const role = session.user.user_metadata?.role || 'aluno'
+    const role = normalizeRole(session.user.user_metadata?.role || 'aluno')
 
     // Aluno não pode acessar rotas de professor/coordenador/pais
     if (role === 'aluno') {

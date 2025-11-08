@@ -26,15 +26,30 @@ export default function LoginPage() {
   // Redirecionar se já estiver logado
   useEffect(() => {
     if (user && !authLoading) {
-      // Redirecionar baseado no role
+      // Redirecionar baseado no role (aceita inglês e português)
       const role = user.user_metadata?.role || 'aluno'
-      if (role === 'aluno') {
+      
+      // Mapear roles em inglês para português
+      const roleMap: Record<string, string> = {
+        'student': 'aluno',
+        'teacher': 'professor',
+        'coordinator': 'coordenador',
+        'parent': 'pais',
+        'aluno': 'aluno',
+        'professor': 'professor',
+        'coordenador': 'coordenador',
+        'pais': 'pais'
+      }
+      
+      const normalizedRole = roleMap[role] || role
+      
+      if (normalizedRole === 'aluno' || normalizedRole === 'student') {
         router.push('/aluno/materias')
-      } else if (role === 'professor') {
+      } else if (normalizedRole === 'professor' || normalizedRole === 'teacher') {
         router.push('/professor/painel')
-      } else if (role === 'coordenador') {
+      } else if (normalizedRole === 'coordenador' || normalizedRole === 'coordinator') {
         router.push('/coordenador/painel')
-      } else if (role === 'pais') {
+      } else if (normalizedRole === 'pais' || normalizedRole === 'parent') {
         router.push('/pais/painel')
       }
     }
