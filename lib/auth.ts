@@ -251,6 +251,12 @@ export async function getProfile(userId: string) {
       return { profile: null, error: null }
     }
 
+    // Verificar se o userId corresponde ao usuário da sessão
+    // Se não corresponder, não fazer query (evita erros 404)
+    if (session.user.id !== userId) {
+      return { profile: null, error: null }
+    }
+
     // Tentar buscar de 'users' primeiro
     // Usar maybeSingle() para não gerar erro se não encontrar (evita 404 no console)
     // Mas mesmo assim, o navegador pode mostrar 404 se o RLS bloquear

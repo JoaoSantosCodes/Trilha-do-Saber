@@ -43,6 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session)
       setUser(session?.user ?? null)
 
+      // Só processar se houver sessão válida com token
       if (session?.user && session?.access_token) {
         // Só carregar perfil se houver sessão válida com token
         await loadProfile(session.user.id)
@@ -89,6 +90,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadProfile = async (userId: string) => {
     try {
+      // Verificar se há sessão válida antes de tentar carregar perfil
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session || !session.access_token) {
+        // Se não houver sessão ou token, não tentar carregar perfil
+        // Isso evita erros 404 no console
+        setProfile(null)
+        return
+      }
+
       // getProfile retorna null silenciosamente se a tabela não existir
       // Não é crítico, o app pode usar user_metadata do Supabase Auth
       const { profile } = await getProfile(userId)
