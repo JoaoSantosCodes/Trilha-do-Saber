@@ -20,10 +20,10 @@ export default function MateriasPage() {
       <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-dark overflow-x-hidden text-white">
         <Header />
         <main className="flex-grow p-4">
-          <h1 className="text-gray-100 tracking-tight text-[32px] font-bold leading-tight text-left pb-3 pt-6">
+          <h1 className="text-gray-100 tracking-tight text-xl sm:text-2xl md:text-[32px] font-bold leading-tight text-left pb-2 sm:pb-3 pt-4 sm:pt-6">
             Qual matéria vamos estudar hoje?
           </h1>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <LoadingSkeleton type="grid" count={6} />
           </div>
         </main>
@@ -56,11 +56,11 @@ export default function MateriasPage() {
       <Header />
 
       <main className="flex-grow">
-        <h1 className="text-gray-100 tracking-tight text-[32px] font-bold leading-tight px-4 text-left pb-3 pt-6">
+        <h1 className="text-gray-100 tracking-tight text-xl sm:text-2xl md:text-[32px] font-bold leading-tight px-4 text-left pb-2 sm:pb-3 pt-4 sm:pt-6">
           Qual matéria vamos estudar hoje?
         </h1>
 
-        <div className="grid grid-cols-2 gap-4 p-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 p-3 sm:p-4">
           {materias.length > 0 ? (
             materias.map((materia) => (
               <SubjectCard

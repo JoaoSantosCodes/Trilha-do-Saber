@@ -127,16 +127,16 @@ export default function ProfessorPainelPage() {
         </div>
       )}
 
-      <main className="flex flex-col gap-6 p-4">
+      <main className="flex flex-col gap-4 sm:gap-6 p-3 sm:p-4">
         {/* Visão Geral da Turma */}
         <section>
-          <h2 className="text-lg font-semibold leading-tight tracking-tight pb-4 text-text-dark">
+          <h2 className="text-base sm:text-lg font-semibold leading-tight tracking-tight pb-3 sm:pb-4 text-text-dark">
             Visão Geral da Turma
           </h2>
           {loadingAlunos ? (
-            <LoadingSkeleton type="card" count={3} className="flex flex-col sm:flex-row gap-4" />
+            <LoadingSkeleton type="card" count={3} className="flex flex-col sm:flex-row gap-3 sm:gap-4" />
           ) : estatisticas ? (
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <StatCard
                 icon="trending_up"
                 label="Média de Lições/Semana"
@@ -161,21 +161,21 @@ export default function ProfessorPainelPage() {
         </section>
 
         {/* Mascote */}
-        <div className="flex w-full grow py-3 justify-center items-center">
-          <div className="w-48 h-48 bg-center bg-no-repeat bg-contain flex items-center justify-center">
-            <span className="material-symbols-outlined text-9xl text-primary">school</span>
+        <div className="flex w-full grow py-2 sm:py-3 justify-center items-center">
+          <div className="w-32 h-32 sm:w-48 sm:h-48 bg-center bg-no-repeat bg-contain flex items-center justify-center">
+            <span className="material-symbols-outlined text-6xl sm:text-9xl text-primary">school</span>
           </div>
         </div>
 
         {/* Lista de Alunos */}
         <section>
-          <h2 className="text-lg font-semibold leading-tight tracking-tight pb-4 text-text-dark">
+          <h2 className="text-base sm:text-lg font-semibold leading-tight tracking-tight pb-3 sm:pb-4 text-text-dark">
             Lista de Alunos {currentTurma && `- ${currentTurma.nome}`}
           </h2>
           {loadingAlunos ? (
             <LoadingSkeleton type="list" count={5} />
           ) : alunos.length > 0 ? (
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2 sm:gap-3">
               {alunos.map((aluno) => (
                 <button
                   key={aluno.id}

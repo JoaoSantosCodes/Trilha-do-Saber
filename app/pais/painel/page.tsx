@@ -164,53 +164,53 @@ export default function PainelPaisPage() {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 py-4 overflow-y-auto">
-        <div className="flex flex-col gap-8">
+      <main className="flex-1 px-3 sm:px-4 py-3 sm:py-4 overflow-y-auto">
+        <div className="flex flex-col gap-6 sm:gap-8">
           {/* Weekly Summary */}
           <section>
-            <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] mb-4">
+            <h2 className="text-white text-base sm:text-lg font-bold leading-tight tracking-[-0.015em] mb-3 sm:mb-4">
               Resumo Semanal
             </h2>
             {loadingProgresso ? (
-              <div className="flex items-center justify-center py-8">
-                <span className="material-symbols-outlined animate-spin text-4xl text-white">
+              <div className="flex items-center justify-center py-6 sm:py-8">
+                <span className="material-symbols-outlined animate-spin text-3xl sm:text-4xl text-white">
                   refresh
                 </span>
               </div>
             ) : progresso ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 bg-white/5">
+              <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
+                <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-3 sm:p-4 bg-white/5">
                   <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-xl">
+                    <span className="material-symbols-outlined text-primary text-lg sm:text-xl">
                       schedule
                     </span>
-                    <p className="text-gray-300 text-base font-medium leading-normal">
+                    <p className="text-gray-300 text-sm sm:text-base font-medium leading-normal truncate">
                       Tempo de Estudo
                     </p>
                   </div>
-                  <p className="text-white tracking-light text-3xl font-bold leading-tight">
+                  <p className="text-white tracking-light text-2xl sm:text-3xl font-bold leading-tight">
                     {formatarTempo(progresso.tempo_estudo_minutos)}
                   </p>
                 </div>
-                <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 bg-white/5">
+                <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-3 sm:p-4 bg-white/5">
                   <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-xl">
+                    <span className="material-symbols-outlined text-primary text-lg sm:text-xl">
                       task_alt
                     </span>
-                    <p className="text-gray-300 text-base font-medium leading-normal">
+                    <p className="text-gray-300 text-sm sm:text-base font-medium leading-normal truncate">
                       Lições Completadas
                     </p>
                   </div>
-                  <p className="text-white tracking-light text-3xl font-bold leading-tight">
+                  <p className="text-white tracking-light text-2xl sm:text-3xl font-bold leading-tight">
                     {progresso.licoes_completadas} Lições
                   </p>
                 </div>
-                <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 bg-white/5 sm:col-span-2">
+                <div className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-3 sm:p-4 bg-white/5 sm:col-span-2">
                   <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-xl">
+                    <span className="material-symbols-outlined text-primary text-lg sm:text-xl">
                       percent
                     </span>
-                    <p className="text-gray-300 text-base font-medium leading-normal">
+                    <p className="text-gray-300 text-sm sm:text-base font-medium leading-normal truncate">
                       Média de Acertos
                     </p>
                   </div>

@@ -103,33 +103,34 @@ export default function ChatPage() {
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-10 w-full bg-background-dark/80 backdrop-blur-sm shadow-sm">
-        <div className="flex items-center p-4">
+      <header className="sticky top-0 z-10 w-full bg-background-dark/95 backdrop-blur-sm shadow-sm safe-area-top">
+        <div className="flex items-center p-3 sm:p-4">
           <button
             onClick={() => router.back()}
-            className="text-white flex size-10 shrink-0 items-center justify-center"
+            className="text-white flex size-10 shrink-0 items-center justify-center touch-manipulation active:opacity-70"
+            aria-label="Voltar"
           >
-            <span className="material-symbols-outlined">arrow_back</span>
+            <span className="material-symbols-outlined text-xl sm:text-2xl">arrow_back</span>
           </button>
-          <div className="ml-2 flex-1">
-            <h2 className="text-white text-lg font-bold leading-tight tracking-tight">
+          <div className="ml-2 flex-1 min-w-0">
+            <h2 className="text-white text-base sm:text-lg font-bold leading-tight tracking-tight truncate">
               {chatInfo.name}
             </h2>
             {chatInfo.subtitle && (
-              <p className="text-white/60 text-sm font-normal leading-normal">
+              <p className="text-white/60 text-xs sm:text-sm font-normal leading-normal truncate">
                 {chatInfo.subtitle}
               </p>
             )}
           </div>
-          <button className="text-white flex size-10 shrink-0 items-center justify-center">
-            <span className="material-symbols-outlined">more_vert</span>
+          <button className="text-white flex size-10 shrink-0 items-center justify-center touch-manipulation active:opacity-70" aria-label="Mais opções">
+            <span className="material-symbols-outlined text-xl sm:text-2xl">more_vert</span>
           </button>
         </div>
       </header>
 
       {/* Chat Body */}
-      <main className="flex-1 overflow-y-auto px-4 pb-4 z-0">
-        <div className="flex flex-col gap-4 py-4">
+      <main className="flex-1 overflow-y-auto px-3 sm:px-4 pb-3 sm:pb-4 z-0 smooth-scroll">
+        <div className="flex flex-col gap-3 sm:gap-4 py-3 sm:py-4">
           {mensagens.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center text-gray-400">
@@ -149,7 +150,7 @@ export default function ChatPage() {
                 >
                   {!isMe && (
                     <div
-                      className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-8 h-8 shrink-0 bg-gray-600"
+                      className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-7 h-7 sm:w-8 sm:h-8 shrink-0 bg-gray-600"
                       style={
                         message.avatar
                           ? { backgroundImage: `url('${message.avatar}')` }
@@ -162,9 +163,9 @@ export default function ChatPage() {
                       isMe ? 'items-end' : 'items-start'
                     }`}
                   >
-                    <div className="flex flex-col gap-1.5">
+                    <div className="flex flex-col gap-1 sm:gap-1.5">
                       <p
-                        className={`text-white text-base font-normal leading-normal flex rounded-xl px-4 py-3 ${
+                        className={`text-white text-sm sm:text-base font-normal leading-normal flex rounded-xl px-3 py-2 sm:px-4 sm:py-3 ${
                           isMe
                             ? 'bg-primary rounded-br-none'
                             : 'bg-message-sender rounded-bl-none'
@@ -173,13 +174,13 @@ export default function ChatPage() {
                         {message.texto}
                       </p>
                     </div>
-                    <span className="text-white/40 text-xs font-normal">
+                    <span className="text-white/40 text-[10px] sm:text-xs font-normal">
                       {formatTimestamp(message.created_at)}
                     </span>
                   </div>
                   {isMe && (
                     <div
-                      className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-8 h-8 shrink-0 bg-gray-600"
+                      className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-7 h-7 sm:w-8 sm:h-8 shrink-0 bg-gray-600"
                       style={
                         profile?.avatar_url
                           ? { backgroundImage: `url('${profile.avatar_url}')` }
@@ -196,7 +197,7 @@ export default function ChatPage() {
       </main>
 
       {/* Input Area */}
-      <footer className="sticky bottom-0 z-10 w-full bg-background-dark p-4">
+      <footer className="sticky bottom-0 z-10 w-full bg-background-dark/95 backdrop-blur-sm p-3 sm:p-4 safe-area-bottom">
         <div className="flex items-center gap-2">
           <input
             type="text"
@@ -205,17 +206,18 @@ export default function ChatPage() {
             onKeyPress={handleKeyPress}
             placeholder="Digite sua mensagem..."
             disabled={isSending}
-            className="flex-1 bg-message-sender border-0 text-white placeholder-white/40 rounded-full h-12 px-5 focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition duration-200 disabled:opacity-50"
+            className="flex-1 bg-message-sender border-0 text-white placeholder-white/40 rounded-full h-11 sm:h-12 px-4 sm:px-5 text-sm sm:text-base focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition duration-200 disabled:opacity-50 touch-manipulation"
           />
           <button
             onClick={handleSend}
             disabled={!inputMessage.trim() || isSending}
-            className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-white shrink-0 hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-primary text-white shrink-0 hover:bg-opacity-90 active:bg-opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+            aria-label="Enviar mensagem"
           >
             {isSending ? (
-              <span className="material-symbols-outlined animate-spin">refresh</span>
+              <span className="material-symbols-outlined animate-spin text-lg sm:text-xl">refresh</span>
             ) : (
-              <span className="material-symbols-outlined">send</span>
+              <span className="material-symbols-outlined text-lg sm:text-xl">send</span>
             )}
           </button>
         </div>

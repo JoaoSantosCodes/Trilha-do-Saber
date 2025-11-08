@@ -99,33 +99,33 @@ export default function PainelCoordenadorPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 p-4">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <main className="flex-1 p-3 sm:p-4">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Stats Cards */}
           {stats.map((stat) => (
             <div
               key={stat.id}
-              className="flex flex-col items-stretch justify-start rounded-xl bg-white/5 p-5"
+              className="flex flex-col items-stretch justify-start rounded-xl bg-white/5 p-4 sm:p-5"
             >
               <div className="flex w-full grow flex-col items-stretch justify-center gap-2">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
-                    <span className="material-symbols-outlined">{stat.icon}</span>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="flex size-9 sm:size-10 items-center justify-center rounded-lg bg-primary/20 text-primary shrink-0">
+                    <span className="material-symbols-outlined text-lg sm:text-xl">{stat.icon}</span>
                   </div>
-                  <p className="text-[#9dabb9] text-sm font-medium leading-normal">
+                  <p className="text-[#9dabb9] text-xs sm:text-sm font-medium leading-normal truncate">
                     {stat.title}
                   </p>
                 </div>
-                <p className="text-white text-3xl font-bold leading-tight tracking-[-0.015em] pt-2">
+                <p className="text-white text-2xl sm:text-3xl font-bold leading-tight tracking-[-0.015em] pt-2">
                   {stat.value}
                 </p>
-                <div className="flex items-end gap-3 justify-between pt-1">
-                  <p className="text-[#9dabb9] text-base font-normal leading-normal">
+                <div className="flex items-end gap-2 sm:gap-3 justify-between pt-1 flex-wrap">
+                  <p className="text-[#9dabb9] text-sm sm:text-base font-normal leading-normal truncate flex-1 min-w-0">
                     {stat.subtitle}
                   </p>
                   <Button
                     onClick={() => router.push(stat.route)}
-                    className="h-9 px-4 bg-primary text-white text-sm font-medium hover:bg-primary/90"
+                    className="h-9 px-3 sm:px-4 bg-primary text-white text-xs sm:text-sm font-medium hover:bg-primary/90 active:bg-primary/80 touch-manipulation shrink-0"
                   >
                     {stat.id === 'alunos' ? 'Buscar Aluno' : stat.id === 'turmas' ? 'Ver Todas' : 'Ver Lista'}
                   </Button>
@@ -135,13 +135,13 @@ export default function PainelCoordenadorPage() {
           ))}
 
           {/* Communication Panel */}
-          <div className="flex flex-col items-start justify-between gap-4 rounded-xl border border-white/10 bg-transparent p-5 lg:col-span-3">
-            <div className="flex w-full flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex flex-col gap-1">
-                <p className="text-white text-base font-bold leading-tight">
+          <div className="flex flex-col items-start justify-between gap-3 sm:gap-4 rounded-xl border border-white/10 bg-transparent p-4 sm:p-5 lg:col-span-3">
+            <div className="flex w-full flex-col items-start gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-col gap-1 flex-1 min-w-0">
+                <p className="text-white text-sm sm:text-base font-bold leading-tight">
                   Comunicação Escola-Pais
                 </p>
-                <p className="text-[#9dabb9] text-base font-normal leading-normal">
+                <p className="text-[#9dabb9] text-xs sm:text-base font-normal leading-normal">
                   Envie uma mensagem para todos os responsáveis.
                 </p>
               </div>
