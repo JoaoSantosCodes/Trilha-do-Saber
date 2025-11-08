@@ -10,7 +10,8 @@
     "lint": "next lint",
     "validar-banco": "tsx supabase/validar-banco.ts",
     "criar-usuarios-teste": "tsx supabase/criar_usuarios_teste.ts",
-    "criar-usuarios-api": "tsx scripts/criar_usuarios_via_api.ts"
+    "criar-usuarios-api": "tsx scripts/criar_usuarios_via_api.ts",
+    "deletar-e-recriar-usuarios": "tsx scripts/deletar_e_recriar_usuarios.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
