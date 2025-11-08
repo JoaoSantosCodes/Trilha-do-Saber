@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "validar-banco": "tsx supabase/validar-banco.ts"
+    "validar-banco": "tsx supabase/validar-banco.ts",
+    "criar-usuarios-teste": "tsx supabase/criar_usuarios_teste.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
