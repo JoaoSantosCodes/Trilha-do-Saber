@@ -1,0 +1,17 @@
+{
+  "name": "Trilha do Saber - App de Reforço Escolar",
+  "short_name": "Trilha do Saber",
+  "description": "Aplicativo de reforço escolar interativo",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1D2B53",
+  "theme_color": "#50E3C2",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
+
