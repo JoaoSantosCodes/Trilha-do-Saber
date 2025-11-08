@@ -266,32 +266,43 @@ export async function getProfile(userId: string) {
       .eq('id', userId)
       .maybeSingle()
 
-    // Se users não existir ou não tiver registro, tentar 'profiles'
+    // Se users não existir ou não tiver registro, retornar null sem tentar profiles
+    // Isso evita múltiplas queries e erros 404 no console
     if (error) {
-      // Se for erro de "does not exist" ou "No rows", tentar profiles
-      if (error.message?.includes('does not exist') || error.message?.includes('No rows') || error.code === 'PGRST116' || error.code === '42P01') {
-        try {
-          const profilesResult = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .maybeSingle()
-          
-          if (!profilesResult.error) {
-            data = profilesResult.data
-            error = null
-          } else {
-            // Se profiles também não existir, retornar null sem erro
-            // Não é crítico, o app pode usar user_metadata do Supabase Auth
-            return { profile: null, error: null }
-          }
-        } catch (profilesError: any) {
-          // Se profiles não existir ou der erro, retornar null sem erro
+      // Se for erro 404, "does not exist", "No rows", ou RLS bloqueando, retornar null
+      // Não tentar profiles para evitar mais erros 404
+      if (
+        error.status === 404 ||
+        error.message?.includes('does not exist') || 
+        error.message?.includes('No rows') || 
+        error.message?.includes('permission denied') ||
+        error.message?.includes('new row violates row-level security') ||
+        error.code === 'PGRST116' || 
+        error.code === '42P01' ||
+        error.code === '42501'
+      ) {
+        // Retornar null silenciosamente - não é crítico, o app pode usar user_metadata
+        return { profile: null, error: null }
+      }
+
+      // Para outros erros raros, tentar profiles como fallback
+      try {
+        const profilesResult = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle()
+        
+        if (!profilesResult.error) {
+          data = profilesResult.data
+          error = null
+        } else {
+          // Se profiles também não existir, retornar null sem erro
           // Não é crítico, o app pode usar user_metadata do Supabase Auth
           return { profile: null, error: null }
         }
-      } else {
-        // Outros erros (404, etc), retornar null sem bloquear
+      } catch (profilesError: any) {
+        // Se profiles não existir ou der erro, retornar null sem erro
         // Não é crítico, o app pode usar user_metadata do Supabase Auth
         return { profile: null, error: null }
       }
