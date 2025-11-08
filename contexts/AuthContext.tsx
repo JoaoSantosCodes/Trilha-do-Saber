@@ -43,11 +43,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session)
       setUser(session?.user ?? null)
 
-      if (session?.user) {
-        // Só carregar perfil se houver sessão válida
+      if (session?.user && session?.access_token) {
+        // Só carregar perfil se houver sessão válida com token
         await loadProfile(session.user.id)
       } else {
-        // Se não houver sessão, não tentar carregar perfil
+        // Se não houver sessão ou token, não tentar carregar perfil
         setProfile(null)
       }
 

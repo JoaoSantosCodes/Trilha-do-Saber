@@ -243,6 +243,13 @@ export async function getCurrentUser() {
  */
 export async function getProfile(userId: string) {
   try {
+    // Verificar se há sessão válida antes de fazer query
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      // Se não houver sessão, retornar null sem fazer query
+      return { profile: null, error: null }
+    }
+
     // Tentar buscar de 'users' primeiro
     // Usar maybeSingle() para não gerar erro se não encontrar (evita 404 no console)
     let { data, error } = await supabase
