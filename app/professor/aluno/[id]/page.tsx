@@ -182,81 +182,81 @@ export default function AlunoDetalhesPage() {
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background-dark text-gray-200">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center bg-background-dark/80 p-4 pb-2 backdrop-blur-sm justify-between">
-        <div className="flex size-12 shrink-0 items-center justify-start">
-          <button onClick={() => router.back()}>
-            <span className="material-symbols-outlined text-white text-2xl">arrow_back</span>
+      <div className="sticky top-0 z-10 flex items-center bg-background-dark/95 p-3 sm:p-4 pb-2 backdrop-blur-sm justify-between safe-area-top">
+        <div className="flex size-10 sm:size-12 shrink-0 items-center justify-start">
+          <button onClick={() => router.back()} className="touch-manipulation active:opacity-70" aria-label="Voltar">
+            <span className="material-symbols-outlined text-white text-xl sm:text-2xl">arrow_back</span>
           </button>
         </div>
-        <h1 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+        <h1 className="text-white text-base sm:text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center px-2 truncate">
           Detalhes do Aluno
         </h1>
-        <div className="flex w-12 items-center justify-end"></div>
+        <div className="flex w-10 sm:w-12 items-center justify-end"></div>
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 py-4 overflow-y-auto">
+      <main className="flex-1 px-3 sm:px-4 py-3 sm:py-4 overflow-y-auto smooth-scroll pb-24 sm:pb-28 safe-area-bottom">
         {/* Aluno Info */}
-        <div className="rounded-xl bg-white/5 border border-white/10 p-6 mb-6">
-          <div className="flex items-center gap-4 mb-4">
+        <div className="rounded-xl bg-white/5 border border-white/10 p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
             {aluno.avatar_url ? (
               <Image
                 src={aluno.avatar_url}
                 alt={aluno.full_name || aluno.username || 'Aluno'}
-                className="w-16 h-16 rounded-full object-cover"
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover shrink-0"
                 width={64}
                 height={64}
                 unoptimized
               />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-background-dark text-xl font-bold">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary flex items-center justify-center text-background-dark text-lg sm:text-xl font-bold shrink-0">
                 {getInitials(aluno.full_name || aluno.username)}
               </div>
             )}
-            <div className="flex-1">
-              <h2 className="text-white text-xl font-bold">{aluno.full_name || aluno.username || 'Aluno'}</h2>
-              <p className="text-gray-400 text-sm">@{aluno.username || 'aluno'}</p>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-white text-base sm:text-xl font-bold truncate">{aluno.full_name || aluno.username || 'Aluno'}</h2>
+              <p className="text-gray-400 text-xs sm:text-sm truncate">@{aluno.username || 'aluno'}</p>
             </div>
           </div>
-          <div className="flex gap-4">
-            <div className="flex-1 rounded-lg bg-white/5 p-3">
-              <p className="text-gray-400 text-xs mb-1">Pontos</p>
-              <p className="text-white text-lg font-bold">{aluno.pontos || 0}</p>
+          <div className="flex gap-3 sm:gap-4">
+            <div className="flex-1 rounded-lg bg-white/5 p-2.5 sm:p-3">
+              <p className="text-gray-400 text-[10px] sm:text-xs mb-1">Pontos</p>
+              <p className="text-white text-base sm:text-lg font-bold">{aluno.pontos || 0}</p>
             </div>
-            <div className="flex-1 rounded-lg bg-white/5 p-3">
-              <p className="text-gray-400 text-xs mb-1">Moedas</p>
-              <p className="text-white text-lg font-bold">{aluno.moedas || 0}</p>
+            <div className="flex-1 rounded-lg bg-white/5 p-2.5 sm:p-3">
+              <p className="text-gray-400 text-[10px] sm:text-xs mb-1">Moedas</p>
+              <p className="text-white text-base sm:text-lg font-bold">{aluno.moedas || 0}</p>
             </div>
           </div>
         </div>
 
         {/* Progresso por Matéria */}
         <div>
-          <h3 className="text-white text-lg font-bold mb-4">Progresso por Matéria</h3>
-          <div className="flex flex-col gap-4">
+          <h3 className="text-white text-base sm:text-lg font-bold mb-3 sm:mb-4">Progresso por Matéria</h3>
+          <div className="flex flex-col gap-3 sm:gap-4">
             {progressoDetalhado.map((progresso, index) => (
-              <div key={index} className="rounded-xl bg-white/5 border border-white/10 p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-white text-base font-semibold">{progresso.materia}</h4>
-                  <span className="text-primary text-sm font-bold">
+              <div key={index} className="rounded-xl bg-white/5 border border-white/10 p-3 sm:p-4">
+                <div className="flex items-center justify-between mb-2 sm:mb-3 flex-wrap gap-2">
+                  <h4 className="text-white text-sm sm:text-base font-semibold truncate flex-1 min-w-0">{progresso.materia}</h4>
+                  <span className="text-primary text-xs sm:text-sm font-bold shrink-0">
                     {progresso.media_acertos}% acertos
                   </span>
                 </div>
                 <div className="mb-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-gray-400 text-xs">
+                  <div className="flex items-center justify-between mb-1 flex-wrap gap-1">
+                    <span className="text-gray-400 text-[10px] sm:text-xs">
                       {progresso.licoes_completadas} de {progresso.total_licoes} lições
                     </span>
-                    <span className="text-white text-xs font-semibold">
+                    <span className="text-white text-[10px] sm:text-xs font-semibold">
                       {progresso.total_licoes > 0
                         ? Math.round((progresso.licoes_completadas / progresso.total_licoes) * 100)
                         : 0}
                       %
                     </span>
                   </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
+                  <div className="w-full bg-gray-700 rounded-full h-1.5 sm:h-2">
                     <div
-                      className="bg-primary h-2 rounded-full transition-all"
+                      className="bg-primary h-1.5 sm:h-2 rounded-full transition-all"
                       style={{
                         width: `${
                           progresso.total_licoes > 0
@@ -268,7 +268,7 @@ export default function AlunoDetalhesPage() {
                   </div>
                 </div>
                 {progresso.ultima_atividade && (
-                  <p className="text-gray-500 text-xs">
+                  <p className="text-gray-500 text-[10px] sm:text-xs">
                     Última atividade: {new Date(progresso.ultima_atividade).toLocaleDateString('pt-BR')}
                   </p>
                 )}
