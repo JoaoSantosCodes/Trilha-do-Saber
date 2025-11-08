@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent',
     title: 'Trilha do Saber',
   },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
   formatDetection: {
     telephone: false,
   },
