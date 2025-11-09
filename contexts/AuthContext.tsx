@@ -59,6 +59,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setLoading(false)
+      
+      // Log do evento para debug (apenas em desenvolvimento)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Auth state changed:', event, session?.user?.email, session?.user?.user_metadata?.role)
+      }
     })
 
     return () => {

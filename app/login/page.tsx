@@ -43,14 +43,23 @@ export default function LoginPage() {
       
       const normalizedRole = roleMap[role] || role
       
+      // Verificar se já está na rota correta antes de redirecionar
+      const currentPath = window.location.pathname
+      let redirectPath = '/aluno/materias'
+      
       if (normalizedRole === 'aluno' || normalizedRole === 'student') {
-        router.push('/aluno/materias')
+        redirectPath = '/aluno/materias'
       } else if (normalizedRole === 'professor' || normalizedRole === 'teacher') {
-        router.push('/professor/painel')
+        redirectPath = '/professor/painel'
       } else if (normalizedRole === 'coordenador' || normalizedRole === 'coordinator') {
-        router.push('/coordenador/painel')
+        redirectPath = '/coordenador/painel'
       } else if (normalizedRole === 'pais' || normalizedRole === 'parent') {
-        router.push('/pais/painel')
+        redirectPath = '/pais/painel'
+      }
+      
+      // Só redirecionar se não estiver na rota correta
+      if (currentPath !== redirectPath && !currentPath.startsWith(redirectPath + '/')) {
+        router.push(redirectPath)
       }
     }
   }, [user, authLoading, router])
