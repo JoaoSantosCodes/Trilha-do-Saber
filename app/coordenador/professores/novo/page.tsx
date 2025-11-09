@@ -154,7 +154,7 @@ export default function NovoProfessorPage() {
             </Button>
             <Button
               type="submit"
-              disabled={isLoading || !nome.trim() || !email.trim() || !senha.trim() || !matricula.trim()}
+              disabled={isLoading || !nome?.trim() || !email?.trim() || !senha?.trim() || !matricula?.trim()}
               className="flex-1 bg-primary text-background-dark h-12 sm:h-14 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
             >
               {isLoading ? (

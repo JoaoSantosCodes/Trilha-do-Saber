@@ -33,9 +33,11 @@ export default function NovaTurmaPage() {
       let professoresIds: string[] = []
       
       // 1. Buscar professores de teachers
+      // Tentar primeiro com autenticação, depois sem
       const teachersResult = await supabase
         .from('teachers')
         .select('user_id')
+        .limit(100)
 
       if (teachersResult.error) {
         // Se erro for "does not exist", "schema cache", "PGRST205" ou RLS, tentar fallback
@@ -81,6 +83,7 @@ export default function NovaTurmaPage() {
         .select('id, name, role')
         .in('id', professoresIds)
         .eq('role', 'teacher')
+        .limit(100)
 
       if (usersResult.error) {
         if (usersResult.error.message?.includes('does not exist') || 

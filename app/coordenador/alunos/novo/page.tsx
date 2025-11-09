@@ -35,6 +35,7 @@ export default function NovoAlunoPage() {
         .select('id, name')
         .eq('is_active', true)
         .order('name')
+        .limit(100)
 
       if (classroomsResult.error) {
         // Se erro for "does not exist", "schema cache", "PGRST205" ou RLS, tentar fallback
