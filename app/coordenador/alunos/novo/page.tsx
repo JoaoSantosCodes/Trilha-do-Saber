@@ -80,6 +80,11 @@ export default function NovoAlunoPage() {
         })) || []
       }
 
+      if (turmasList.length === 0) {
+        console.warn('Nenhuma turma encontrada')
+      } else {
+        console.log('Turmas encontradas:', turmasList.length, turmasList)
+      }
       setTurmas(turmasList)
     } catch (err: any) {
       console.error('Erro ao buscar turmas:', err)

@@ -129,6 +129,11 @@ export default function NovaTurmaPage() {
           nome: perfil.full_name || perfil.username || 'Professor',
         })) || []
 
+      if (professoresFormatados.length === 0) {
+        console.warn('Nenhum professor formatado encontrado')
+      } else {
+        console.log('Professores formatados:', professoresFormatados.length, professoresFormatados)
+      }
       setProfessores(professoresFormatados)
     } catch (err: any) {
       console.error('Erro ao buscar professores:', err)
