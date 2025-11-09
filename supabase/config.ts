@@ -16,7 +16,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
   }
 }
 
-export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+})
 
 // Tipos TypeScript para o banco de dados
 export type Database = {
