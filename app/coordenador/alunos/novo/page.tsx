@@ -37,9 +37,11 @@ export default function NovoAlunoPage() {
         .order('name')
 
       if (classroomsResult.error) {
-        // Se erro for "does not exist" ou RLS, tentar fallback
+        // Se erro for "does not exist", "schema cache", "PGRST205" ou RLS, tentar fallback
         if (classroomsResult.error.message?.includes('does not exist') || 
             classroomsResult.error.code === '42P01' ||
+            classroomsResult.error.code === 'PGRST205' ||
+            classroomsResult.error.message?.includes('schema cache') ||
             classroomsResult.error.message?.includes('permission denied') ||
             classroomsResult.error.message?.includes('row-level security')) {
           // Fallback para turmas

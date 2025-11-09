@@ -38,9 +38,11 @@ export default function NovaTurmaPage() {
         .select('user_id')
 
       if (teachersResult.error) {
-        // Se erro for "does not exist" ou RLS, tentar fallback
+        // Se erro for "does not exist", "schema cache", "PGRST205" ou RLS, tentar fallback
         if (teachersResult.error.message?.includes('does not exist') || 
             teachersResult.error.code === '42P01' ||
+            teachersResult.error.code === 'PGRST205' ||
+            teachersResult.error.message?.includes('schema cache') ||
             teachersResult.error.message?.includes('permission denied') ||
             teachersResult.error.message?.includes('row-level security')) {
           // Fallback para professores
