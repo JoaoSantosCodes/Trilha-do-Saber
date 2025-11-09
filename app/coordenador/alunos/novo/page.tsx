@@ -39,12 +39,15 @@ export default function NovoAlunoPage() {
       // Tentar classrooms primeiro, depois turmas (fallback)
       let turmasList: { id: string; nome: string }[] = []
       
+      console.log('Buscando turmas de classrooms...')
       const classroomsResult = await supabase
         .from('classrooms')
         .select('id, name')
         .eq('is_active', true)
         .order('name')
         .limit(100)
+
+      console.log('Resultado classrooms:', classroomsResult.error ? 'ERRO' : 'SUCESSO', classroomsResult.data?.length || 0)
 
       if (classroomsResult.error) {
         // Se erro for "does not exist", "schema cache", "PGRST205" ou RLS, tentar fallback
