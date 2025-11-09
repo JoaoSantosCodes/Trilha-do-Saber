@@ -1,325 +1,182 @@
-# 🚀 Próximos Passos - Trilha do Saber
+# Próximos Passos - Problema PostgREST 404
 
-## ✅ O que já está pronto
+## 📋 Status Atual
 
-1. ✅ **Todas as telas implementadas** (100% - 11 grupos)
-2. ✅ **Banco de dados criado e validado** no Supabase
-3. ✅ **Configuração do Supabase** concluída
-4. ✅ **Estrutura do projeto** completa
-
----
-
-## 📋 Próximos Passos (Por Prioridade)
-
-### 🔥 Prioridade ALTA (Funcionalidades Core)
-
-#### 1. **Sistema de Autenticação** 🔐
-**Status**: ⏳ Pendente
-
-**Tarefas**:
-- [ ] Implementar login com Supabase Auth
-- [ ] Implementar cadastro com Supabase Auth
-- [ ] Implementar recuperação de senha
-- [ ] Criar perfil automaticamente ao cadastrar
-- [ ] Proteção de rotas (middleware)
-- [ ] Context de autenticação
-
-**Arquivos a criar/modificar**:
-- `lib/auth.ts` - Funções de autenticação
-- `contexts/AuthContext.tsx` - Context de autenticação
-- `middleware.ts` - Proteção de rotas
-- `app/login/page.tsx` - Integrar com Supabase
-- `app/cadastro/page.tsx` - Integrar com Supabase
-- `app/esqueci-senha/page.tsx` - Integrar com Supabase
-
-**Estimativa**: 2-3 horas
+- ❌ **Problema ainda persiste**
+- ❌ Erros 404 para `/rest/v1/users` e `/rest/v1/teachers`
+- ❌ Select de professores está vazio
+- ✅ Query SQL direta funciona (retorna 6 professores)
+- ✅ Dados existem no banco
+- ✅ Políticas RLS estão corretas
 
 ---
 
-#### 2. **Hooks Personalizados para Supabase** 🎣
-**Status**: ⏳ Pendente
+## 🔧 Próximas Tentativas (Nesta Ordem)
 
-**Tarefas**:
-- [ ] `useAuth()` - Hook de autenticação
-- [ ] `useMaterias()` - Hook para matérias
-- [ ] `useProgresso()` - Hook para progresso
-- [ ] `useAluno()` - Hook para dados do aluno
-- [ ] `useRanking()` - Hook para ranking
-- [ ] `useAmizades()` - Hook para amizades
-- [ ] `useLoja()` - Hook para loja
+### 1. Verificar se o Reload do Schema Funcionou
 
-**Arquivos a criar**:
-- `hooks/useAuth.ts`
-- `hooks/useMaterias.ts`
-- `hooks/useProgresso.ts`
-- `hooks/useAluno.ts`
-- `hooks/useRanking.ts`
-- `hooks/useAmizades.ts`
-- `hooks/useLoja.ts`
+**No SQL Editor do Supabase**, execute novamente:
 
-**Estimativa**: 2-3 horas
+```sql
+NOTIFY pgrst, 'reload schema';
+```
+
+**Aguarde 30 segundos** e teste novamente.
 
 ---
 
-#### 3. **Integração: Página de Matérias** 📚
-**Status**: ⏳ Pendente
+### 2. Tentar Outra Forma de Reload
 
-**Tarefas**:
-- [ ] Buscar matérias do banco
-- [ ] Exibir matérias dinamicamente
-- [ ] Adicionar loading states
-- [ ] Tratamento de erros
+**No SQL Editor**, execute:
 
-**Arquivos a modificar**:
-- `app/aluno/materias/page.tsx`
+```sql
+SELECT pg_notify('pgrst', 'reload schema');
+```
 
-**Estimativa**: 30 minutos
+**Aguarde 30 segundos** e teste novamente.
 
 ---
 
-#### 4. **Integração: Perfil do Aluno** 👤
-**Status**: ⏳ Pendente
+### 3. Verificar Configuração do PostgREST no Dashboard
 
-**Tarefas**:
-- [ ] Buscar dados do aluno do banco
-- [ ] Buscar conquistas do aluno
-- [ ] Buscar progresso semanal
-- [ ] Buscar amigos
-- [ ] Atualizar perfil
+**Passo 1**: Acesse **Supabase Dashboard** → **Settings** → **API**
 
-**Arquivos a modificar**:
-- `app/aluno/perfil/page.tsx`
-- `app/aluno/perfil/editar/page.tsx`
+**Passo 2**: Verifique:
+- ✅ **"Exposed Schemas"** deve incluir `public`
+- ✅ **"Blocked Tables"** deve estar vazio ou não incluir `users`, `teachers`, `classrooms`
+- ✅ **"Extra Search Path"** deve incluir `public` (se houver)
 
-**Estimativa**: 1-2 horas
+**Passo 3**: Se houver alguma configuração bloqueando, **desabilite ou ajuste**
 
 ---
 
-### 🟡 Prioridade MÉDIA (Funcionalidades Importantes)
+### 4. Recriar Política RLS
 
-#### 5. **Sistema de Trilhas e Lições** 🎮
-**Status**: ⏳ Pendente
+**No SQL Editor**, execute:
 
-**Tarefas**:
-- [ ] Buscar trilhas do banco
-- [ ] Buscar lições da trilha
-- [ ] Implementar progresso de lições
-- [ ] Salvar respostas do aluno
-- [ ] Atualizar pontos e moedas
-- [ ] Sistema de vidas
+```sql
+-- Deletar política existente
+DROP POLICY IF EXISTS "Anyone authenticated can view users" ON users;
 
-**Arquivos a modificar**:
-- `app/aluno/trilha/[materia]/page.tsx`
-- `app/aluno/trilha/[materia]/licao/[licaoId]/page.tsx`
+-- Recriar política
+CREATE POLICY "Anyone authenticated can view users"
+ON users
+FOR SELECT
+TO authenticated
+USING (true);
+```
 
-**Estimativa**: 3-4 horas
-
----
-
-#### 6. **Sistema de Ranking** 🏆
-**Status**: ⏳ Pendente
-
-**Tarefas**:
-- [ ] Buscar ranking do banco
-- [ ] Calcular posições
-- [ ] Atualizar ranking semanal
-- [ ] Filtrar por amigos/global
-
-**Arquivos a modificar**:
-- `app/aluno/ranking/page.tsx`
-
-**Estimativa**: 1-2 horas
+**Teste novamente**.
 
 ---
 
-#### 7. **Sistema de Amizades** 👥
-**Status**: ⏳ Pendente
+### 5. Testar Desabilitar RLS Temporariamente
 
-**Tarefas**:
-- [ ] Buscar amigos do banco
-- [ ] Buscar pedidos de amizade
-- [ ] Implementar adicionar amigo
-- [ ] Implementar aceitar/recusar pedido
-- [ ] Buscar usuários para adicionar
+**ATENÇÃO**: Isso desabilita temporariamente a segurança RLS!
 
-**Arquivos a modificar**:
-- `app/aluno/buscar-amigos/page.tsx`
-- `app/aluno/pedidos-amizade/page.tsx`
+**No SQL Editor**, execute:
 
-**Estimativa**: 2-3 horas
+```sql
+-- Desabilitar RLS
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+```
 
----
+**Teste se funciona agora** (deve funcionar).
 
-#### 8. **Sistema de Loja** 🛒
-**Status**: ⏳ Pendente
+**Se funcionar**, o problema é a política RLS. **Reabilite RLS**:
 
-**Tarefas**:
-- [ ] Buscar itens da loja do banco
-- [ ] Buscar inventário do aluno
-- [ ] Implementar compra de itens
-- [ ] Implementar equipar itens
-- [ ] Atualizar moedas após compra
+```sql
+-- Reabilitar RLS
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+```
 
-**Arquivos a modificar**:
-- `app/aluno/loja/page.tsx`
-
-**Estimativa**: 2-3 horas
+E então recrie a política (passo 4).
 
 ---
 
-#### 9. **Painel dos Pais** 👨‍👩‍👧
-**Status**: ⏳ Pendente
+### 6. Verificar se `users` é uma Palavra Reservada
 
-**Tarefas**:
-- [ ] Buscar dados dos filhos
-- [ ] Buscar progresso dos filhos
-- [ ] Buscar tarefas criadas
-- [ ] Implementar criar tarefa
-- [ ] Buscar conquistas dos filhos
+**No SQL Editor**, execute:
 
-**Arquivos a modificar**:
-- `app/pais/painel/page.tsx`
+```sql
+-- Renomear temporariamente
+ALTER TABLE users RENAME TO app_users;
+```
 
-**Estimativa**: 2-3 horas
+**Teste se funciona agora**.
 
----
+**Se funcionar**, o problema é o nome `users`. Você tem duas opções:
 
-#### 10. **Sistema de Chat** 💬
-**Status**: ⏳ Pendente
+**Opção A**: Manter `app_users` e atualizar o código
+**Opção B**: Voltar para `users` e contatar suporte do Supabase
 
-**Tarefas**:
-- [ ] Buscar conversas do banco
-- [ ] Buscar mensagens
-- [ ] Implementar envio de mensagens
-- [ ] Real-time com Supabase Realtime
-- [ ] Marcar mensagens como lidas
+**Para voltar ao nome original**:
 
-**Arquivos a modificar**:
-- `app/chat/[id]/page.tsx`
-
-**Estimativa**: 2-3 horas
+```sql
+ALTER TABLE app_users RENAME TO users;
+```
 
 ---
 
-### 🟢 Prioridade BAIXA (Melhorias e Extras)
+### 7. Contatar Suporte do Supabase
 
-#### 11. **Painel do Coordenador** 🎓
-**Status**: ⏳ Pendente
+**Se nenhuma das soluções acima funcionar**, o problema pode ser específico da configuração do seu projeto.
 
-**Tarefas**:
-- [ ] Buscar estatísticas do banco
-- [ ] Buscar turmas
-- [ ] Buscar professores
-- [ ] Buscar alunos
-- [ ] Implementar criar turma/professor/aluno
-- [ ] Implementar enviar comunicado
+**Contate o Suporte do Supabase** com:
 
-**Arquivos a modificar**:
-- `app/coordenador/painel/page.tsx`
-- `app/coordenador/turmas/page.tsx`
-- `app/coordenador/professores/page.tsx`
-- `app/coordenador/alunos/page.tsx`
+1. **Descrição do problema**:
+   - PostgREST retorna 404 para `/rest/v1/users`, `/rest/v1/teachers` e `/rest/v1/classrooms`
+   - Queries SQL diretas funcionam perfeitamente
+   - Políticas RLS estão corretas
+   - Token JWT está sendo enviado corretamente
 
-**Estimativa**: 3-4 horas
+2. **Evidências**:
+   - Logs da API mostrando 404 para `users` mas 200 para `students`
+   - Query SQL que funciona: `SELECT id, name, role FROM users WHERE role = 'teacher'`
+   - Políticas RLS configuradas
 
----
+3. **O que você já tentou**:
+   - `NOTIFY pgrst, 'reload schema';`
+   - Verificar configurações do PostgREST
+   - Recriar políticas RLS
+   - Testar desabilitar RLS temporariamente
 
-#### 12. **Painel do Professor** 👨‍🏫
-**Status**: ⏳ Pendente
-
-**Tarefas**:
-- [ ] Buscar turmas do professor
-- [ ] Buscar alunos das turmas
-- [ ] Buscar progresso dos alunos
-- [ ] Implementar análise de progresso
-
-**Arquivos a modificar**:
-- `app/professor/painel/page.tsx`
-
-**Estimativa**: 2-3 horas
+4. **Peça para verificar**:
+   - Configuração do PostgREST
+   - Schema cache
+   - Se há alguma configuração específica bloqueando `users`, `teachers` ou `classrooms`
 
 ---
 
-#### 13. **Configurações** ⚙️
-**Status**: ⏳ Pendente
+## 🔍 Verificação Rápida
 
-**Tarefas**:
-- [ ] Buscar configurações do banco
-- [ ] Salvar configurações
-- [ ] Sincronizar com perfil
+Para verificar se o problema foi resolvido:
 
-**Arquivos a modificar**:
-- `app/configuracoes/page.tsx`
-
-**Estimativa**: 1 hora
+1. **Abra o console do navegador** (F12)
+2. **Acesse** `/coordenador/turmas/nova`
+3. **Verifique se há erros 404** para `/rest/v1/users` ou `/rest/v1/teachers`
+4. **Verifique se o select de professores** está preenchido
 
 ---
 
-## 🛠️ Infraestrutura Necessária
+## 📝 Checklist
 
-### Contexts
-- [ ] `AuthContext` - Gerenciamento de autenticação
-- [ ] `AlunoContext` - Dados do aluno logado
-- [ ] `ThemeContext` - Já existe (next-themes)
-
-### Utilitários
-- [ ] `lib/utils.ts` - Funções utilitárias
-- [ ] `lib/constants.ts` - Constantes do app
-- [ ] `lib/validations.ts` - Validações de formulário
-
-### Middleware
-- [ ] `middleware.ts` - Proteção de rotas baseada em role
+- [ ] Executei `NOTIFY pgrst, 'reload schema';` novamente
+- [ ] Tentei `SELECT pg_notify('pgrst', 'reload schema');`
+- [ ] Verifiquei configurações do PostgREST no Dashboard
+- [ ] Recriei política RLS para `users`
+- [ ] Testei desabilitar RLS temporariamente
+- [ ] Testei renomear tabela temporariamente
+- [ ] Contatei suporte do Supabase (se necessário)
 
 ---
 
-## 📊 Ordem Recomendada de Implementação
+## 💡 Dica Final
 
-### Fase 1: Fundação (1-2 dias)
-1. ✅ Sistema de Autenticação
-2. ✅ Hooks Personalizados
-3. ✅ Context de Autenticação
-4. ✅ Proteção de Rotas
+O problema é que o **PostgREST não está reconhecendo a tabela `users` no schema cache**. Isso pode ser devido a:
 
-### Fase 2: Funcionalidades Core (3-5 dias)
-5. ✅ Página de Matérias
-6. ✅ Perfil do Aluno
-7. ✅ Sistema de Trilhas e Lições
-8. ✅ Sistema de Ranking
+1. **Schema cache desatualizado** (tente reload novamente)
+2. **Configuração específica do PostgREST** (verifique no Dashboard)
+3. **Nome `users` causando conflito** (teste renomear temporariamente)
 
-### Fase 3: Funcionalidades Sociais (2-3 dias)
-9. ✅ Sistema de Amizades
-10. ✅ Sistema de Loja
-11. ✅ Sistema de Chat
-
-### Fase 4: Painéis (2-3 dias)
-12. ✅ Painel dos Pais
-13. ✅ Painel do Professor
-14. ✅ Painel do Coordenador
-
-### Fase 5: Polimento (1-2 dias)
-15. ✅ Configurações
-16. ✅ Tratamento de erros global
-17. ✅ Loading states
-18. ✅ Notificações
-
----
-
-## 🎯 Meta Final
-
-**Objetivo**: Aplicativo totalmente funcional e integrado com o banco de dados
-
-**Tempo estimado total**: 10-15 dias de desenvolvimento
-
-**Próximo passo imediato**: Implementar Sistema de Autenticação
-
----
-
-## 📝 Notas
-
-- Todas as telas já estão criadas e funcionais (UI)
-- Banco de dados está pronto e validado
-- Foco agora é na integração backend-frontend
-- Use os hooks personalizados para manter código limpo
-- Implemente tratamento de erros em todas as operações
-- Adicione loading states para melhor UX
-
+Se nada funcionar, **contate o suporte do Supabase** - pode ser um problema específico da configuração do seu projeto.
