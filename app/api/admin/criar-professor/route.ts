@@ -31,42 +31,67 @@ export async function POST(request: NextRequest) {
       .from('users')
       .select('id')
       .eq('email', email.trim())
-      .single()
+      .maybeSingle()
 
-    if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
-      const profilesResult = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .eq('email', email.trim())
-        .single()
-      emailExistente = profilesResult.data
+    if (usersResult.error) {
+      // Se erro for "does not exist" (tabela não existe), tentar profiles
+      if (usersResult.error.message?.includes('does not exist') || usersResult.error.code === '42P01') {
+        try {
+          const profilesResult = await supabaseAdmin
+            .from('profiles')
+            .select('id')
+            .eq('email', email.trim())
+            .maybeSingle()
+          if (!profilesResult.error && profilesResult.data) {
+            emailExistente = profilesResult.data
+          }
+        } catch (err) {
+          // Ignorar erro de profiles
+        }
+      }
     } else {
-      emailExistente = usersResult.data
+      // Se não houver erro, verificar se há dados
+      if (usersResult.data) {
+        emailExistente = usersResult.data
+      }
+    }
+
+    // Também verificar em auth.users
+    if (!emailExistente) {
+      try {
+        const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers()
+        if (!authError && authUsers?.users) {
+          const existingUser = authUsers.users.find(u => u.email === email.trim())
+          if (existingUser) {
+            emailExistente = { id: existingUser.id }
+          }
+        }
+      } catch (err) {
+        // Ignorar erro
+      }
     }
 
     if (emailExistente) {
       return NextResponse.json({ error: 'Este email já está cadastrado' }, { status: 400 })
     }
 
-    // 2. Verificar se matrícula já existe
-    // Tentar teachers primeiro, depois professores (fallback)
+    // 2. Verificar se matrícula já existe (se a tabela professores existir)
+    // Como teachers não tem matrícula, verificar apenas em professores
     let matriculaExistente: any = null
     
-    const teachersResult = await supabaseAdmin
-      .from('teachers')
-      .select('user_id as id')
-      .eq('employee_id', matricula.trim())
-      .single()
-
-    if (teachersResult.error && teachersResult.error.message?.includes('does not exist')) {
+    try {
       const professoresResult = await supabaseAdmin
         .from('professores')
         .select('id')
         .eq('matricula', matricula.trim())
-        .single()
-      matriculaExistente = professoresResult.data
-    } else {
-      matriculaExistente = teachersResult.data
+        .maybeSingle()
+      
+      if (!professoresResult.error && professoresResult.data) {
+        matriculaExistente = professoresResult.data
+      }
+    } catch (err) {
+      // Se a tabela professores não existir, ignorar verificação de matrícula
+      console.warn('Tabela professores não encontrada, pulando verificação de matrícula')
     }
 
     if (matriculaExistente) {
@@ -118,27 +143,40 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Criar registro na tabela teachers (ou professores como fallback)
+    // teachers não tem employee_id, então vamos criar apenas com user_id
     let professorError: any = null
     
     const teachersInsertResult = await supabaseAdmin.from('teachers').insert({
       user_id: userId,
-      employee_id: matricula.trim(),
     })
 
-    if (teachersInsertResult.error && teachersInsertResult.error.message?.includes('does not exist')) {
-      const professoresResult = await supabaseAdmin.from('professores').insert({
-        id: userId,
-        matricula: matricula.trim(),
-        status: 'ativo',
-      })
-      professorError = professoresResult.error
-    } else {
-      professorError = teachersInsertResult.error
+    if (teachersInsertResult.error) {
+      // Se teachers não existir ou der erro, tentar professores
+      if (teachersInsertResult.error.message?.includes('does not exist') || teachersInsertResult.error.code === '42P01') {
+        try {
+          const professoresResult = await supabaseAdmin.from('professores').insert({
+            id: userId,
+            matricula: matricula.trim(),
+            status: 'ativo',
+          })
+          professorError = professoresResult.error
+        } catch (err: any) {
+          professorError = err
+        }
+      } else {
+        professorError = teachersInsertResult.error
+      }
     }
 
     // Não bloquear se não conseguir criar registro de professor
-    if (professorError && !professorError.message?.includes('duplicate')) {
-      console.warn('Aviso: Não foi possível criar registro de professor:', professorError.message)
+    // Mas logar o erro para debug
+    if (professorError) {
+      console.warn('Aviso: Não foi possível criar registro de professor:', professorError.message || professorError)
+      // Se for erro de duplicata, não é crítico
+      if (!professorError.message?.includes('duplicate') && !professorError.message?.includes('unique')) {
+        // Para outros erros, ainda retornar sucesso pois o usuário foi criado em auth.users
+        console.warn('Usuário criado em auth.users, mas registro em teachers/professores falhou')
+      }
     }
 
     return NextResponse.json({ success: true, userId })

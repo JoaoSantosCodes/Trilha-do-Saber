@@ -29,20 +29,38 @@ export default function NovaTurmaPage() {
     try {
       setLoadingProfessores(true)
       
-      // 1. Buscar professores ativos
-      const { data: professoresData, error: errProfessores } = await supabase
-        .from('professores')
-        .select('id')
-        .eq('status', 'ativo')
+      // Tentar teachers primeiro, depois professores (fallback)
+      let professoresIds: string[] = []
+      
+      // 1. Buscar professores de teachers
+      const teachersResult = await supabase
+        .from('teachers')
+        .select('user_id')
 
-      if (errProfessores) throw errProfessores
+      if (teachersResult.error) {
+        // Se erro for "does not exist", tentar fallback
+        if (teachersResult.error.message?.includes('does not exist') || teachersResult.error.code === '42P01') {
+          // Fallback para professores
+          const professoresResult = await supabase
+            .from('professores')
+            .select('id')
+            .eq('status', 'ativo')
+          
+          if (!professoresResult.error && professoresResult.data) {
+            professoresIds = professoresResult.data.map((p) => p.id)
+          }
+        } else {
+          console.warn('Erro ao buscar teachers:', teachersResult.error)
+        }
+      } else {
+        // Se teachers funcionou, usar user_id
+        professoresIds = teachersResult.data?.map((t) => t.user_id).filter(Boolean) || []
+      }
 
-      if (!professoresData || professoresData.length === 0) {
+      if (professoresIds.length === 0) {
         setProfessores([])
         return
       }
-
-      const professoresIds = professoresData.map((p) => p.id)
 
       // 2. Buscar perfis dos professores
       // Tentar users primeiro, depois profiles (fallback)
@@ -55,24 +73,29 @@ export default function NovaTurmaPage() {
         .in('id', professoresIds)
         .eq('role', 'teacher')
 
-      if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
-        const profilesResult = await supabase
-          .from('profiles')
-          .select('id, full_name, username')
-          .in('id', professoresIds)
-          .eq('role', 'professor')
-        perfis = profilesResult.data
-        errPerfis = profilesResult.error
+      if (usersResult.error) {
+        if (usersResult.error.message?.includes('does not exist') || usersResult.error.code === '42P01') {
+          const profilesResult = await supabase
+            .from('profiles')
+            .select('id, full_name, username')
+            .in('id', professoresIds)
+            .eq('role', 'professor')
+          perfis = profilesResult.data
+          errPerfis = profilesResult.error
+        } else {
+          errPerfis = usersResult.error
+        }
       } else {
         perfis = usersResult.data?.map((u: any) => ({
           id: u.id,
           full_name: u.name || null,
           username: u.name?.split(' ')[0] || null
         })) || null
-        errPerfis = usersResult.error
       }
 
-      if (errPerfis && !errPerfis.message?.includes('does not exist')) throw errPerfis
+      if (errPerfis && !errPerfis.message?.includes('does not exist')) {
+        console.warn('Erro ao buscar perfis:', errPerfis)
+      }
 
       const professoresFormatados =
         perfis?.map((perfil) => ({
@@ -83,6 +106,7 @@ export default function NovaTurmaPage() {
       setProfessores(professoresFormatados)
     } catch (err: any) {
       console.error('Erro ao buscar professores:', err)
+      setProfessores([])
     } finally {
       setLoadingProfessores(false)
     }
@@ -111,14 +135,36 @@ export default function NovaTurmaPage() {
 
     try {
       // Verificar se código já existe
-      const { data: codigoExistente, error: errCodigo } = await supabase
-        .from('turmas')
+      // Tentar classrooms primeiro, depois turmas (fallback)
+      let codigoExistente: any = null
+      
+      const classroomsResult = await supabase
+        .from('classrooms')
         .select('id')
-        .eq('codigo', codigo.trim())
-        .single()
+        .eq('name', codigo.trim())
+        .maybeSingle()
 
-      if (errCodigo && errCodigo.code !== 'PGRST116') {
-        throw errCodigo
+      if (classroomsResult.error && !classroomsResult.error.message?.includes('does not exist')) {
+        throw classroomsResult.error
+      }
+
+      if (classroomsResult.data) {
+        codigoExistente = classroomsResult.data
+      } else {
+        // Fallback para turmas
+        const turmasResult = await supabase
+          .from('turmas')
+          .select('id')
+          .eq('codigo', codigo.trim())
+          .maybeSingle()
+
+        if (turmasResult.error && turmasResult.error.code !== 'PGRST116') {
+          throw turmasResult.error
+        }
+
+        if (turmasResult.data) {
+          codigoExistente = turmasResult.data
+        }
       }
 
       if (codigoExistente) {
@@ -128,17 +174,57 @@ export default function NovaTurmaPage() {
       }
 
       // Criar turma
-      const { error: err } = await supabase.from('turmas').insert({
-        nome: nome.trim(),
-        codigo: codigo.trim(),
-        professor_id: professorId,
-        serie: serie.trim() || null,
-        periodo: periodo,
-        ano_letivo: anoLetivo.trim() || null,
-        ativo: true,
-      })
+      // Tentar classrooms primeiro, depois turmas (fallback)
+      // Para classrooms, precisamos do teacher_id (que é o id da tabela teachers, não user_id)
+      // Mas temos o user_id do professor, então precisamos buscar o id do teacher
+      let teacherTableId: string | null = null
+      
+      const teacherRecord = await supabase
+        .from('teachers')
+        .select('id')
+        .eq('user_id', professorId)
+        .maybeSingle()
 
-      if (err) throw err
+      if (!teacherRecord.error && teacherRecord.data) {
+        teacherTableId = teacherRecord.data.id
+      }
+
+      // Tentar criar em classrooms primeiro
+      let turmaError: any = null
+      
+      if (teacherTableId) {
+        const classroomsInsertResult = await supabase.from('classrooms').insert({
+          name: nome.trim(),
+          teacher_id: teacherTableId,
+          grade_level: parseInt(serie) || 1,
+          shift: periodo,
+          is_active: true,
+        })
+
+        if (classroomsInsertResult.error) {
+          turmaError = classroomsInsertResult.error
+        }
+      } else {
+        // Se não encontrou teacher_id, tentar criar em turmas
+        turmaError = { message: 'Teacher not found, trying turmas' }
+      }
+
+      // Se deu erro em classrooms ou não encontrou teacher_id, tentar turmas
+      if (turmaError || !teacherTableId) {
+        const turmasInsertResult = await supabase.from('turmas').insert({
+          nome: nome.trim(),
+          codigo: codigo.trim(),
+          professor_id: professorId,
+          serie: serie.trim() || null,
+          periodo: periodo,
+          ano_letivo: anoLetivo.trim() || null,
+          ativo: true,
+        })
+
+        if (turmasInsertResult.error) {
+          throw turmasInsertResult.error
+        }
+      }
 
       // Redirecionar de volta à lista
       router.push('/coordenador/turmas')

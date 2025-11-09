@@ -120,13 +120,39 @@ export async function POST(request: NextRequest) {
 
     // 5. Associar aluno à turma se selecionada
     if (turmaId) {
-      const { error: turmaError } = await supabaseAdmin.from('aluno_turma').insert({
-        aluno_id: userId,
-        turma_id: turmaId,
-        ativo: true,
-      })
+      // Tentar classroom_students primeiro, depois aluno_turma (fallback)
+      let turmaError: any = null
+      
+      // Verificar se turmaId é de classrooms ou turmas
+      // Primeiro, tentar buscar em classrooms
+      const classroomResult = await supabaseAdmin
+        .from('classrooms')
+        .select('id')
+        .eq('id', turmaId)
+        .maybeSingle()
 
-      if (turmaError) throw turmaError
+      if (!classroomResult.error && classroomResult.data) {
+        // É uma classroom, usar classroom_students
+        const classroomStudentResult = await supabaseAdmin.from('classroom_students').insert({
+          classroom_id: turmaId,
+          student_id: userId,
+          is_active: true,
+        })
+        turmaError = classroomStudentResult.error
+      } else {
+        // É uma turma, usar aluno_turma
+        const alunoTurmaResult = await supabaseAdmin.from('aluno_turma').insert({
+          aluno_id: userId,
+          turma_id: turmaId,
+          ativo: true,
+        })
+        turmaError = alunoTurmaResult.error
+      }
+
+      if (turmaError) {
+        console.warn('Aviso: Não foi possível associar aluno à turma:', turmaError.message)
+        // Não bloquear, apenas logar
+      }
     }
 
     return NextResponse.json({ success: true, userId })
