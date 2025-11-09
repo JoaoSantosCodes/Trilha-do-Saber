@@ -358,6 +358,25 @@ export function useCoordenador() {
         }
       } else {
         professores = teachersResult.data || []
+        
+        // Buscar dados dos usuários separadamente
+        if (professores.length > 0) {
+          const userIds = professores.map((p: any) => p.user_id).filter(Boolean)
+          if (userIds.length > 0) {
+            const usersResult = await supabase
+              .from('users')
+              .select('id, name, email, avatar_url')
+              .in('id', userIds)
+            
+            if (!usersResult.error && usersResult.data) {
+              const usersMap = new Map(usersResult.data.map((u: any) => [u.id, u]))
+              professores = professores.map((p: any) => ({
+                ...p,
+                user_data: usersMap.get(p.user_id)
+              }))
+            }
+          }
+        }
       }
 
       // Buscar turmas de cada professor
@@ -388,8 +407,8 @@ export function useCoordenador() {
             }
           }
 
-          // Para teachers, usar user_id!users, para professores usar id!profiles
-          const userData = prof.user_id || prof.id
+          // Para teachers, usar user_data, para professores usar dados diretos
+          const userData = prof.user_data || prof
           const nome = userData?.name || userData?.full_name || userData?.username || 'Professor'
           const avatar = userData?.avatar_url || ''
 
@@ -492,7 +511,7 @@ export function useCoordenador() {
           const studentId = aluno.user_id || aluno.id
           const { data: responsaveis, error: errResponsaveis } = await supabase
             .from('parent_student_relation')
-            .select('parent_id!parents(user_id), parent_id!users(name)')
+            .select('*')
             .eq('student_id', studentId)
             .limit(1)
 
@@ -504,7 +523,7 @@ export function useCoordenador() {
             // Tentar fallback para aluno_pais
             const responsaveisFallback = await supabase
               .from('aluno_pais')
-              .select('pais_id!profiles(full_name)')
+              .select('*')
               .eq('aluno_id', studentId)
               .limit(1)
             
