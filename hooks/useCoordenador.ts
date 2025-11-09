@@ -64,9 +64,28 @@ export function useCoordenador() {
           professoresAtivos = professoresAtivosResult.count || 0
         } else {
           // Outro erro (RLS, etc) - logar mas não quebrar
-          console.warn('Erro ao buscar professores:', teachersResult.error)
-          totalProfessores = 0
-          professoresAtivos = 0
+          // Tentar fallback mesmo em caso de erro RLS
+          console.warn('Erro ao buscar professores (tentando fallback):', teachersResult.error)
+          try {
+            const professoresResult = await supabase
+              .from('professores')
+              .select('*', { count: 'exact', head: true })
+            if (!professoresResult.error) {
+              totalProfessores = professoresResult.count || 0
+              const professoresAtivosResult = await supabase
+                .from('professores')
+                .select('*', { count: 'exact', head: true })
+                .eq('status', 'ativo')
+              professoresAtivos = professoresAtivosResult.count || 0
+            } else {
+              totalProfessores = 0
+              professoresAtivos = 0
+            }
+          } catch (fallbackError) {
+            console.warn('Erro no fallback de professores:', fallbackError)
+            totalProfessores = 0
+            professoresAtivos = 0
+          }
         }
       } else {
         totalProfessores = teachersResult.count || 0
@@ -105,8 +124,21 @@ export function useCoordenador() {
           totalAlunos = alunosResult.count || 0
         } else {
           // Outro erro (RLS, etc) - logar mas não quebrar
-          console.warn('Erro ao buscar alunos:', studentsResult.error)
-          totalAlunos = 0
+          // Tentar fallback mesmo em caso de erro RLS
+          console.warn('Erro ao buscar alunos (tentando fallback):', studentsResult.error)
+          try {
+            const alunosResult = await supabase
+              .from('alunos')
+              .select('*', { count: 'exact', head: true })
+            if (!alunosResult.error) {
+              totalAlunos = alunosResult.count || 0
+            } else {
+              totalAlunos = 0
+            }
+          } catch (fallbackError) {
+            console.warn('Erro no fallback de alunos:', fallbackError)
+            totalAlunos = 0
+          }
         }
       } else {
         totalAlunos = studentsResult.count || 0
@@ -217,23 +249,65 @@ export function useCoordenador() {
 
   const buscarTurmas = async () => {
     try {
-      const { data: turmas, error: err } = await supabase
-        .from('turmas')
-        .select('*, professor_id!profiles(full_name, username)')
-        .order('nome', { ascending: true })
+      // Tentar classrooms primeiro, depois turmas (fallback)
+      let turmas: any[] = []
+      
+      const classroomsResult = await supabase
+        .from('classrooms')
+        .select('*, teacher_id!teachers(user_id), teacher_id!users(name, email)')
+        .order('name', { ascending: true })
 
-      if (err) throw err
+      if (classroomsResult.error) {
+        // Se erro for "does not exist", tentar fallback
+        if (classroomsResult.error.message?.includes('does not exist') || classroomsResult.error.code === '42P01') {
+          const turmasResult = await supabase
+            .from('turmas')
+            .select('*, professor_id!profiles(full_name, username)')
+            .order('nome', { ascending: true })
+          
+          if (turmasResult.error) {
+            throw turmasResult.error
+          }
+          turmas = turmasResult.data || []
+        } else {
+          // Outro erro (RLS, etc) - tentar fallback mesmo assim
+          console.warn('Erro ao buscar classrooms (tentando fallback):', classroomsResult.error)
+          try {
+            const turmasResult = await supabase
+              .from('turmas')
+              .select('*, professor_id!profiles(full_name, username)')
+              .order('nome', { ascending: true })
+            
+            if (!turmasResult.error) {
+              turmas = turmasResult.data || []
+            } else {
+              throw turmasResult.error
+            }
+          } catch (fallbackError) {
+            console.error('Erro no fallback de turmas:', fallbackError)
+            return []
+          }
+        }
+      } else {
+        turmas = classroomsResult.data || []
+      }
 
-      return turmas?.map((turma: any) => ({
-        id: turma.id,
-        nome: turma.nome,
-        codigo: turma.codigo,
-        professor: turma.professor_id?.full_name || turma.professor_id?.username || 'Sem professor',
-        alunos: 0, // Será calculado separadamente
-        serie: turma.serie,
-        periodo: turma.periodo,
-        ativo: turma.ativo,
-      })) || []
+      return turmas?.map((turma: any) => {
+        // Para classrooms, usar teacher_id!users, para turmas usar professor_id!profiles
+        const teacherData = turma.teacher_id?.users || turma.teacher_id || turma.professor_id
+        const professor = teacherData?.name || teacherData?.full_name || teacherData?.username || 'Sem professor'
+        
+        return {
+          id: turma.id,
+          nome: turma.name || turma.nome,
+          codigo: turma.code || turma.codigo || '',
+          professor: professor,
+          alunos: 0, // Será calculado separadamente
+          serie: turma.grade_level?.toString() || turma.grade?.toString() || turma.serie || '',
+          periodo: turma.shift || turma.periodo || '',
+          ativo: turma.is_active !== undefined ? turma.is_active : (turma.ativo !== undefined ? turma.ativo : true),
+        }
+      }) || []
     } catch (err: any) {
       console.error('Erro ao buscar turmas:', err)
       return []
@@ -242,30 +316,71 @@ export function useCoordenador() {
 
   const buscarProfessores = async () => {
     try {
-      const { data: professores, error: err } = await supabase
-        .from('professores')
-        .select('*, id!profiles(full_name, username, avatar_url)')
+      // Tentar teachers primeiro, depois professores (fallback)
+      let professores: any[] = []
+      
+      const teachersResult = await supabase
+        .from('teachers')
+        .select('*, user_id!users(name, email, avatar_url)')
         .order('created_at', { ascending: false })
 
-      if (err) throw err
+      if (teachersResult.error) {
+        // Se erro for "does not exist", tentar fallback
+        if (teachersResult.error.message?.includes('does not exist') || teachersResult.error.code === '42P01') {
+          const professoresResult = await supabase
+            .from('professores')
+            .select('*, id!profiles(full_name, username, avatar_url)')
+            .order('created_at', { ascending: false })
+          
+          if (professoresResult.error) {
+            throw professoresResult.error
+          }
+          professores = professoresResult.data || []
+        } else {
+          // Outro erro (RLS, etc) - tentar fallback mesmo assim
+          console.warn('Erro ao buscar teachers (tentando fallback):', teachersResult.error)
+          try {
+            const professoresResult = await supabase
+              .from('professores')
+              .select('*, id!profiles(full_name, username, avatar_url)')
+              .order('created_at', { ascending: false })
+            
+            if (!professoresResult.error) {
+              professores = professoresResult.data || []
+            } else {
+              throw professoresResult.error
+            }
+          } catch (fallbackError) {
+            console.error('Erro no fallback de professores:', fallbackError)
+            return []
+          }
+        }
+      } else {
+        professores = teachersResult.data || []
+      }
 
       // Buscar turmas de cada professor
       const professoresComTurmas = await Promise.all(
-        (professores || []).map(async (prof: any) => {
+        professores.map(async (prof: any) => {
           const { data: turmas, error: errTurmas } = await supabase
             .from('turmas')
             .select('nome')
-            .eq('professor_id', prof.id)
+            .eq('professor_id', prof.user_id || prof.id)
             .eq('ativo', true)
 
           const turmasNomes = turmas?.map((t) => t.nome).join(', ') || 'Sem turmas'
 
+          // Para teachers, usar user_id!users, para professores usar id!profiles
+          const userData = prof.user_id || prof.id
+          const nome = userData?.name || userData?.full_name || userData?.username || 'Professor'
+          const avatar = userData?.avatar_url || ''
+
           return {
-            id: prof.id,
-            nome: prof.id?.full_name || prof.id?.username || 'Professor',
+            id: prof.user_id || prof.id,
+            nome: nome,
             turmas: turmasNomes ? `Turmas: ${turmasNomes}` : 'Sem turmas',
-            status: prof.status,
-            avatar: prof.id?.avatar_url || '',
+            status: prof.status || 'ativo', // teachers não tem status, considerar ativo
+            avatar: avatar,
           }
         })
       )
@@ -279,45 +394,118 @@ export function useCoordenador() {
 
   const buscarAlunos = async () => {
     try {
-      const { data: alunos, error: err } = await supabase
-        .from('alunos')
-        .select('*, id!profiles(full_name, username, avatar_url)')
+      // Tentar students primeiro, depois alunos (fallback)
+      let alunos: any[] = []
+      
+      const studentsResult = await supabase
+        .from('students')
+        .select('*, user_id!users(name, email, avatar_url)')
         .order('created_at', { ascending: false })
 
-      if (err) throw err
+      if (studentsResult.error) {
+        // Se erro for "does not exist", tentar fallback
+        if (studentsResult.error.message?.includes('does not exist') || studentsResult.error.code === '42P01') {
+          const alunosResult = await supabase
+            .from('alunos')
+            .select('*, id!profiles(full_name, username, avatar_url)')
+            .order('created_at', { ascending: false })
+          
+          if (alunosResult.error) {
+            throw alunosResult.error
+          }
+          alunos = alunosResult.data || []
+        } else {
+          // Outro erro (RLS, etc) - tentar fallback mesmo assim
+          console.warn('Erro ao buscar students (tentando fallback):', studentsResult.error)
+          try {
+            const alunosResult = await supabase
+              .from('alunos')
+              .select('*, id!profiles(full_name, username, avatar_url)')
+              .order('created_at', { ascending: false })
+            
+            if (!alunosResult.error) {
+              alunos = alunosResult.data || []
+            } else {
+              throw alunosResult.error
+            }
+          } catch (fallbackError) {
+            console.error('Erro no fallback de alunos:', fallbackError)
+            return []
+          }
+        }
+      } else {
+        alunos = studentsResult.data || []
+      }
 
       // Buscar turmas e responsáveis de cada aluno
       const alunosCompletos = await Promise.all(
-        (alunos || []).map(async (aluno: any) => {
+        alunos.map(async (aluno: any) => {
           // Buscar turma do aluno
+          // Para students, usar classroom_students, para alunos usar aluno_turma
+          const alunoId = aluno.user_id || aluno.id
           const { data: alunoTurma, error: errTurma } = await supabase
-            .from('aluno_turma')
-            .select('turma_id, turmas(nome)')
-            .eq('aluno_id', aluno.id)
-            .eq('ativo', true)
+            .from('classroom_students')
+            .select('classroom_id, classrooms(name)')
+            .eq('student_id', alunoId)
+            .eq('is_active', true)
             .limit(1)
-            .single()
+            .maybeSingle()
 
-          const turmaNome = (alunoTurma?.turmas as any)?.nome || 'Sem turma'
+          let turmaNome = 'Sem turma'
+          if (alunoTurma?.classrooms) {
+            turmaNome = (alunoTurma.classrooms as any)?.name || 'Sem turma'
+          } else if (errTurma) {
+            // Tentar fallback para aluno_turma
+            const alunoTurmaFallback = await supabase
+              .from('aluno_turma')
+              .select('turma_id, turmas(nome)')
+              .eq('aluno_id', alunoId)
+              .eq('ativo', true)
+              .limit(1)
+              .maybeSingle()
+            
+            if (alunoTurmaFallback.data) {
+              turmaNome = (alunoTurmaFallback.data?.turmas as any)?.nome || 'Sem turma'
+            }
+          }
 
           // Buscar responsáveis
+          // Para students, usar parent_student_relation, para alunos usar aluno_pais
+          const studentId = aluno.user_id || aluno.id
           const { data: responsaveis, error: errResponsaveis } = await supabase
-            .from('aluno_pais')
-            .select('pais_id!profiles(full_name)')
-            .eq('aluno_id', aluno.id)
+            .from('parent_student_relation')
+            .select('parent_id!parents(user_id), parent_id!users(name)')
+            .eq('student_id', studentId)
             .limit(1)
 
-          const responsavelNome =
-            responsaveis && responsaveis.length > 0
-              ? (responsaveis[0].pais_id as any)?.full_name || 'Sem responsável'
-              : 'Sem responsável'
+          let responsavelNome = 'Sem responsável'
+          if (responsaveis && responsaveis.length > 0) {
+            const parentData = responsaveis[0].parent_id
+            responsavelNome = parentData?.users?.name || parentData?.full_name || 'Sem responsável'
+          } else if (errResponsaveis) {
+            // Tentar fallback para aluno_pais
+            const responsaveisFallback = await supabase
+              .from('aluno_pais')
+              .select('pais_id!profiles(full_name)')
+              .eq('aluno_id', studentId)
+              .limit(1)
+            
+            if (responsaveisFallback.data && responsaveisFallback.data.length > 0) {
+              responsavelNome = (responsaveisFallback.data[0].pais_id as any)?.full_name || 'Sem responsável'
+            }
+          }
+
+          // Para students, usar user_id!users, para alunos usar id!profiles
+          const userData = aluno.user_id || aluno.id
+          const nome = userData?.name || userData?.full_name || userData?.username || 'Aluno'
+          const avatar = userData?.avatar_url || ''
 
           return {
-            id: aluno.id,
-            nome: aluno.id?.full_name || aluno.id?.username || 'Aluno',
+            id: studentId,
+            nome: nome,
             turma: turmaNome ? `Turma: ${turmaNome}` : 'Sem turma',
             responsavel: `Responsável: ${responsavelNome}`,
-            avatar: aluno.id?.avatar_url || '',
+            avatar: avatar,
           }
         })
       )
