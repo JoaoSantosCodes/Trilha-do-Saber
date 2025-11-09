@@ -41,11 +41,11 @@ export default function NovaTurmaPage() {
         return
       }
       
-      // Tentar teachers primeiro, depois professores (fallback)
+      // Buscar professores diretamente de users (role = 'teacher')
+      // Tentar teachers primeiro, depois users diretamente
       let professoresIds: string[] = []
       
-      // 1. Buscar professores de teachers
-      // Tentar primeiro com autenticação, depois sem
+      // 1. Tentar buscar de teachers primeiro
       console.log('Buscando professores de teachers...')
       const teachersResult = await supabase
         .from('teachers')
@@ -55,20 +55,35 @@ export default function NovaTurmaPage() {
       console.log('Resultado teachers:', teachersResult.error ? 'ERRO' : 'SUCESSO', teachersResult.data?.length || 0)
 
       if (teachersResult.error || !teachersResult.data || teachersResult.data.length === 0) {
-        // Se erro ou sem dados, tentar fallback para professores
-        console.log('Tentando fallback para professores...')
-        const professoresResult = await supabase
-          .from('professores')
-          .select('id')
-          .eq('status', 'ativo')
+        // Se teachers não funcionou, buscar diretamente de users com role = 'teacher'
+        console.log('Tentando buscar professores diretamente de users...')
+        const usersResult = await supabase
+          .from('users')
+          .select('id, name, role')
+          .eq('role', 'teacher')
           .limit(100)
         
-        console.log('Resultado professores (fallback):', professoresResult.error ? 'ERRO' : 'SUCESSO', professoresResult.data?.length || 0)
+        console.log('Resultado users (professores):', usersResult.error ? 'ERRO' : 'SUCESSO', usersResult.data?.length || 0)
         
-        if (!professoresResult.error && professoresResult.data) {
-          professoresIds = professoresResult.data.map((p) => p.id)
+        if (!usersResult.error && usersResult.data && usersResult.data.length > 0) {
+          // Usar os IDs dos users diretamente
+          professoresIds = usersResult.data.map((u: any) => u.id)
+          
+          // Formatar professores diretamente
+          const professoresFormatados = usersResult.data.map((u: any) => ({
+            id: u.id,
+            nome: u.name || 'Professor',
+          }))
+          
+          console.log('Professores encontrados:', professoresFormatados.length, professoresFormatados)
+          setProfessores(professoresFormatados)
+          setLoadingProfessores(false)
+          return
         } else {
-          console.warn('Erro ao buscar professores (fallback):', professoresResult.error)
+          console.warn('Nenhum professor encontrado em users')
+          setProfessores([])
+          setLoadingProfessores(false)
+          return
         }
       } else {
         // Se teachers funcionou, usar user_id

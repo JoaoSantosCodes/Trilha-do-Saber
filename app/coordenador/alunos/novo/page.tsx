@@ -53,25 +53,9 @@ export default function NovoAlunoPage() {
       console.log('Resultado classrooms:', classroomsResult.error ? 'ERRO' : 'SUCESSO', classroomsResult.data?.length || 0)
 
       if (classroomsResult.error || !classroomsResult.data || classroomsResult.data.length === 0) {
-        // Se erro ou sem dados, tentar fallback para turmas
-        console.log('Tentando fallback para turmas...')
-        const turmasResult = await supabase
-          .from('turmas')
-          .select('id, nome')
-          .eq('ativo', true)
-          .order('nome')
-          .limit(100)
-        
-        console.log('Resultado turmas (fallback):', turmasResult.error ? 'ERRO' : 'SUCESSO', turmasResult.data?.length || 0)
-        
-        if (!turmasResult.error && turmasResult.data) {
-          turmasList = turmasResult.data.map((t: any) => ({
-            id: t.id,
-            nome: t.nome || t.name || 'Turma',
-          }))
-        } else {
-          console.warn('Erro ao buscar turmas (fallback):', turmasResult.error)
-        }
+        // Se classrooms não funcionou, não há fallback (tabela turmas não existe)
+        console.warn('Nenhuma turma encontrada em classrooms')
+        turmasList = []
       } else {
         // Se classrooms funcionou, usar name
         turmasList = classroomsResult.data?.map((c: any) => ({
