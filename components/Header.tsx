@@ -42,6 +42,7 @@ export default function Header({
       <div className="flex w-12 items-center justify-end">
         {showSettings && (
           <button 
+            onClick={() => router.push('/configuracoes')}
             className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 sm:h-12 sm:w-12 text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0 hover:bg-card-dark active:bg-card-dark/80 transition-colors touch-manipulation"
             aria-label="Configurações"
           >

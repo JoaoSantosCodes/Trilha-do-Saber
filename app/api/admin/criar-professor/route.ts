@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     // Tentar users primeiro, depois profiles (fallback)
     let profileError: any = null
     
-    const usersResult = await supabaseAdmin
+    const usersProfileResult = await supabaseAdmin
       .from('users')
       .upsert({ 
         id: userId, 
@@ -102,14 +102,14 @@ export async function POST(request: NextRequest) {
         role: 'teacher'
       }, { onConflict: 'id' })
 
-    if (usersResult.error && usersResult.error.message?.includes('does not exist')) {
+    if (usersProfileResult.error && usersProfileResult.error.message?.includes('does not exist')) {
       const profilesResult = await supabaseAdmin
         .from('profiles')
         .update({ role: 'professor', full_name: nome.trim() })
         .eq('id', userId)
       profileError = profilesResult.error
     } else {
-      profileError = usersResult.error
+      profileError = usersProfileResult.error
     }
 
     // Não bloquear se não conseguir atualizar perfil
@@ -120,12 +120,12 @@ export async function POST(request: NextRequest) {
     // 5. Criar registro na tabela teachers (ou professores como fallback)
     let professorError: any = null
     
-    const teachersResult = await supabaseAdmin.from('teachers').insert({
+    const teachersInsertResult = await supabaseAdmin.from('teachers').insert({
       user_id: userId,
       employee_id: matricula.trim(),
     })
 
-    if (teachersResult.error && teachersResult.error.message?.includes('does not exist')) {
+    if (teachersInsertResult.error && teachersInsertResult.error.message?.includes('does not exist')) {
       const professoresResult = await supabaseAdmin.from('professores').insert({
         id: userId,
         matricula: matricula.trim(),
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
       })
       professorError = professoresResult.error
     } else {
-      professorError = teachersResult.error
+      professorError = teachersInsertResult.error
     }
 
     // Não bloquear se não conseguir criar registro de professor

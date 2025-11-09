@@ -73,7 +73,7 @@ const generalSettings: SettingItem[] = [
 
 export default function ConfiguracoesPage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
   const { configuracoes, loading, atualizarConfiguracao } = useConfiguracoes()
   const [isSaving, setIsSaving] = useState(false)
 
@@ -281,6 +281,19 @@ export default function ConfiguracoesPage() {
                 </Link>
               ))}
             </div>
+          </div>
+
+          {/* Logout Section */}
+          <div className="pt-4 sm:pt-6">
+            <button
+              onClick={async () => {
+                await signOut()
+              }}
+              className="flex h-12 sm:h-14 w-full items-center justify-center gap-2 sm:gap-3 rounded-full bg-red-500/20 text-red-400 transition-colors hover:bg-red-500/30 active:bg-red-500/40 touch-manipulation"
+            >
+              <span className="material-symbols-outlined text-xl sm:text-2xl">logout</span>
+              <span className="text-sm sm:text-base font-semibold">Sair da Conta</span>
+            </button>
           </div>
         </div>
       </main>
