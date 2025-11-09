@@ -179,6 +179,10 @@ export async function signIn(data: SignInData) {
 
     if (error) throw error
 
+    // Aguardar um pouco para garantir que a sessão foi salva
+    // Isso ajuda o middleware a detectar a sessão
+    await new Promise(resolve => setTimeout(resolve, 200))
+
     return { user: authData.user, session: authData.session, error: null }
   } catch (error: any) {
     return { user: null, session: null, error: error.message }

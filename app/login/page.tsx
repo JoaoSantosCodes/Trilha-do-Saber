@@ -102,8 +102,35 @@ export default function LoginPage() {
         return
       }
 
-      // O redirecionamento será feito pelo useEffect quando o user for atualizado
-      // Não precisa fazer nada aqui, o useEffect vai detectar a mudança
+      // Se o login foi bem-sucedido, redirecionar imediatamente
+      // O useEffect também vai detectar a mudança, mas vamos forçar o redirecionamento aqui
+      if (result.user) {
+        const role = result.user.user_metadata?.role || 'aluno'
+        const roleMap: Record<string, string> = {
+          'student': 'aluno',
+          'teacher': 'professor',
+          'coordinator': 'coordenador',
+          'parent': 'pais',
+          'aluno': 'aluno',
+          'professor': 'professor',
+          'coordenador': 'coordenador',
+          'pais': 'pais'
+        }
+        const normalizedRole = roleMap[role] || role
+        
+        let redirectPath = '/aluno/materias'
+        if (normalizedRole === 'professor' || normalizedRole === 'teacher') {
+          redirectPath = '/professor/painel'
+        } else if (normalizedRole === 'coordenador' || normalizedRole === 'coordinator') {
+          redirectPath = '/coordenador/painel'
+        } else if (normalizedRole === 'pais' || normalizedRole === 'parent') {
+          redirectPath = '/pais/painel'
+        }
+        
+        // Aguardar um pouco para garantir que a sessão foi salva
+        await new Promise(resolve => setTimeout(resolve, 100))
+        router.push(redirectPath)
+      }
     } catch (error: any) {
       setErrorMessage(error.message || 'Erro ao fazer login. Por favor, tente novamente.')
       setShowErrorModal(true)
