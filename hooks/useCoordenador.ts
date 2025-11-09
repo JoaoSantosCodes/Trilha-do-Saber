@@ -362,13 +362,30 @@ export function useCoordenador() {
       // Buscar turmas de cada professor
       const professoresComTurmas = await Promise.all(
         professores.map(async (prof: any) => {
-          const { data: turmas, error: errTurmas } = await supabase
-            .from('turmas')
-            .select('nome')
-            .eq('professor_id', prof.user_id || prof.id)
-            .eq('ativo', true)
+          const teacherId = prof.user_id || prof.id
+          
+          // Tentar classrooms primeiro, depois turmas (fallback)
+          const { data: classrooms, error: errClassrooms } = await supabase
+            .from('classrooms')
+            .select('name')
+            .eq('teacher_id', teacherId)
+            .eq('is_active', true)
 
-          const turmasNomes = turmas?.map((t) => t.nome).join(', ') || 'Sem turmas'
+          let turmasNomes = 'Sem turmas'
+          if (!errClassrooms && classrooms && classrooms.length > 0) {
+            turmasNomes = classrooms.map((c: any) => c.name).join(', ')
+          } else {
+            // Fallback para turmas
+            const { data: turmas, error: errTurmas } = await supabase
+              .from('turmas')
+              .select('nome')
+              .eq('professor_id', teacherId)
+              .eq('ativo', true)
+
+            if (!errTurmas && turmas && turmas.length > 0) {
+              turmasNomes = turmas.map((t: any) => t.nome).join(', ')
+            }
+          }
 
           // Para teachers, usar user_id!users, para professores usar id!profiles
           const userData = prof.user_id || prof.id
@@ -376,7 +393,7 @@ export function useCoordenador() {
           const avatar = userData?.avatar_url || ''
 
           return {
-            id: prof.user_id || prof.id,
+            id: teacherId,
             nome: nome,
             turmas: turmasNomes ? `Turmas: ${turmasNomes}` : 'Sem turmas',
             status: prof.status || 'ativo', // teachers não tem status, considerar ativo
