@@ -29,6 +29,15 @@ export default function NovaTurmaPage() {
     try {
       setLoadingProfessores(true)
       
+      // Verificar se há sessão válida antes de fazer queries
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session || !session.access_token) {
+        console.warn('Nenhuma sessão válida encontrada')
+        setProfessores([])
+        setLoadingProfessores(false)
+        return
+      }
+      
       // Tentar teachers primeiro, depois professores (fallback)
       let professoresIds: string[] = []
       

@@ -27,6 +27,15 @@ export default function NovoAlunoPage() {
     try {
       setLoadingTurmas(true)
       
+      // Verificar se há sessão válida antes de fazer queries
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session || !session.access_token) {
+        console.warn('Nenhuma sessão válida encontrada')
+        setTurmas([])
+        setLoadingTurmas(false)
+        return
+      }
+      
       // Tentar classrooms primeiro, depois turmas (fallback)
       let turmasList: { id: string; nome: string }[] = []
       
