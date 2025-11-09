@@ -254,7 +254,7 @@ export function useCoordenador() {
       
       const classroomsResult = await supabase
         .from('classrooms')
-        .select('*, teacher_id!teachers(user_id), teacher_id!users(name, email)')
+        .select('*')
         .order('name', { ascending: true })
 
       if (classroomsResult.error) {
@@ -262,7 +262,7 @@ export function useCoordenador() {
         if (classroomsResult.error.message?.includes('does not exist') || classroomsResult.error.code === '42P01') {
           const turmasResult = await supabase
             .from('turmas')
-            .select('*, professor_id!profiles(full_name, username)')
+            .select('*')
             .order('nome', { ascending: true })
           
           if (turmasResult.error) {
@@ -292,22 +292,65 @@ export function useCoordenador() {
         turmas = classroomsResult.data || []
       }
 
-      return turmas?.map((turma: any) => {
-        // Para classrooms, usar teacher_id!users, para turmas usar professor_id!profiles
-        const teacherData = turma.teacher_id?.users || turma.teacher_id || turma.professor_id
-        const professor = teacherData?.name || teacherData?.full_name || teacherData?.username || 'Sem professor'
+      // Buscar dados dos professores separadamente
+      const turmasComProfessores = await Promise.all(
+        turmas.map(async (turma: any) => {
+          let professor = 'Sem professor'
+          
+          if (turma.teacher_id) {
+            // Buscar teacher e depois user
+            const teacherResult = await supabase
+              .from('teachers')
+              .select('user_id')
+              .eq('id', turma.teacher_id)
+              .single()
+            
+            if (!teacherResult.error && teacherResult.data?.user_id) {
+              const userResult = await supabase
+                .from('users')
+                .select('name')
+                .eq('id', teacherResult.data.user_id)
+                .single()
+              
+              if (!userResult.error && userResult.data) {
+                professor = userResult.data.name || 'Sem professor'
+              }
+            }
+          } else if (turma.professor_id) {
+            // Fallback para professores (tabela antiga)
+            const professorResult = await supabase
+              .from('professores')
+              .select('id')
+              .eq('id', turma.professor_id)
+              .single()
+            
+            if (!professorResult.error && professorResult.data) {
+              const profileResult = await supabase
+                .from('profiles')
+                .select('full_name, username')
+                .eq('id', turma.professor_id)
+                .single()
+              
+              if (!profileResult.error && profileResult.data) {
+                professor = profileResult.data.full_name || profileResult.data.username || 'Sem professor'
+              }
+            }
+          }
         
-        return {
-          id: turma.id,
-          nome: turma.name || turma.nome,
-          codigo: turma.code || turma.codigo || '',
-          professor: professor,
-          alunos: 0, // Será calculado separadamente
-          serie: turma.grade_level?.toString() || turma.grade?.toString() || turma.serie || '',
-          periodo: turma.shift || turma.periodo || '',
-          ativo: turma.is_active !== undefined ? turma.is_active : (turma.ativo !== undefined ? turma.ativo : true),
-        }
-      }) || []
+          return {
+            id: turma.id,
+            nome: turma.name || turma.nome,
+            codigo: turma.code || turma.codigo || '',
+            professor: professor,
+            alunos: 0, // Será calculado separadamente
+            serie: turma.grade_level?.toString() || turma.grade?.toString() || turma.serie || '',
+            periodo: turma.shift || turma.periodo || '',
+            ativo: turma.is_active !== undefined ? turma.is_active : (turma.ativo !== undefined ? turma.ativo : true),
+          }
+        })
+      )
+      
+      return turmasComProfessores || []
     } catch (err: any) {
       console.error('Erro ao buscar turmas:', err)
       return []
@@ -343,7 +386,7 @@ export function useCoordenador() {
           try {
             const professoresResult = await supabase
               .from('professores')
-              .select('*, id!profiles(full_name, username, avatar_url)')
+              .select('*')
               .order('created_at', { ascending: false })
             
             if (!professoresResult.error) {
@@ -436,7 +479,7 @@ export function useCoordenador() {
       
       const studentsResult = await supabase
         .from('students')
-        .select('*, user_id!users(name, email, avatar_url)')
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (studentsResult.error) {
@@ -444,7 +487,7 @@ export function useCoordenador() {
         if (studentsResult.error.message?.includes('does not exist') || studentsResult.error.code === '42P01') {
           const alunosResult = await supabase
             .from('alunos')
-            .select('*, id!profiles(full_name, username, avatar_url)')
+            .select('*')
             .order('created_at', { ascending: false })
           
           if (alunosResult.error) {
@@ -472,6 +515,25 @@ export function useCoordenador() {
         }
       } else {
         alunos = studentsResult.data || []
+        
+        // Buscar dados dos usuários separadamente
+        if (alunos.length > 0) {
+          const userIds = alunos.map((a: any) => a.user_id).filter(Boolean)
+          if (userIds.length > 0) {
+            const usersResult = await supabase
+              .from('users')
+              .select('id, name, email, avatar_url')
+              .in('id', userIds)
+            
+            if (!usersResult.error && usersResult.data) {
+              const usersMap = new Map(usersResult.data.map((u: any) => [u.id, u]))
+              alunos = alunos.map((a: any) => ({
+                ...a,
+                user_data: usersMap.get(a.user_id)
+              }))
+            }
+          }
+        }
       }
 
       // Buscar turmas e responsáveis de cada aluno
@@ -482,27 +544,45 @@ export function useCoordenador() {
           const alunoId = aluno.user_id || aluno.id
           const { data: alunoTurma, error: errTurma } = await supabase
             .from('classroom_students')
-            .select('classroom_id, classrooms(name)')
+            .select('classroom_id')
             .eq('student_id', alunoId)
             .eq('is_active', true)
             .limit(1)
             .maybeSingle()
 
           let turmaNome = 'Sem turma'
-          if (alunoTurma?.classrooms) {
-            turmaNome = (alunoTurma.classrooms as any)?.name || 'Sem turma'
+          if (alunoTurma?.classroom_id) {
+            // Buscar nome da turma separadamente
+            const classroomResult = await supabase
+              .from('classrooms')
+              .select('name')
+              .eq('id', alunoTurma.classroom_id)
+              .single()
+            
+            if (!classroomResult.error && classroomResult.data) {
+              turmaNome = classroomResult.data.name || 'Sem turma'
+            }
           } else if (errTurma) {
             // Tentar fallback para aluno_turma
             const alunoTurmaFallback = await supabase
               .from('aluno_turma')
-              .select('turma_id, turmas(nome)')
+              .select('turma_id')
               .eq('aluno_id', alunoId)
               .eq('ativo', true)
               .limit(1)
               .maybeSingle()
             
-            if (alunoTurmaFallback.data) {
-              turmaNome = (alunoTurmaFallback.data?.turmas as any)?.nome || 'Sem turma'
+            if (alunoTurmaFallback.data?.turma_id) {
+              // Buscar nome da turma separadamente
+              const turmaResult = await supabase
+                .from('turmas')
+                .select('nome')
+                .eq('id', alunoTurmaFallback.data.turma_id)
+                .single()
+              
+              if (!turmaResult.error && turmaResult.data) {
+                turmaNome = turmaResult.data.nome || 'Sem turma'
+              }
             }
           }
 
@@ -517,8 +597,27 @@ export function useCoordenador() {
 
           let responsavelNome = 'Sem responsável'
           if (responsaveis && responsaveis.length > 0) {
-            const parentData = responsaveis[0].parent_id
-            responsavelNome = parentData?.users?.name || parentData?.full_name || 'Sem responsável'
+            const parentId = responsaveis[0].parent_id
+            // Buscar dados do responsável separadamente
+            if (parentId) {
+              const parentResult = await supabase
+                .from('parents')
+                .select('user_id')
+                .eq('id', parentId)
+                .single()
+              
+              if (!parentResult.error && parentResult.data?.user_id) {
+                const userResult = await supabase
+                  .from('users')
+                  .select('name')
+                  .eq('id', parentResult.data.user_id)
+                  .single()
+                
+                if (!userResult.error && userResult.data) {
+                  responsavelNome = userResult.data.name || 'Sem responsável'
+                }
+              }
+            }
           } else if (errResponsaveis) {
             // Tentar fallback para aluno_pais
             const responsaveisFallback = await supabase
@@ -528,12 +627,32 @@ export function useCoordenador() {
               .limit(1)
             
             if (responsaveisFallback.data && responsaveisFallback.data.length > 0) {
-              responsavelNome = (responsaveisFallback.data[0].pais_id as any)?.full_name || 'Sem responsável'
+              const paisId = responsaveisFallback.data[0].pais_id
+              if (paisId) {
+                // Buscar dados do perfil separadamente
+                const paisResult = await supabase
+                  .from('pais')
+                  .select('id')
+                  .eq('id', paisId)
+                  .single()
+                
+                if (!paisResult.error && paisResult.data) {
+                  const profileResult = await supabase
+                    .from('profiles')
+                    .select('full_name, username')
+                    .eq('id', paisId)
+                    .single()
+                  
+                  if (!profileResult.error && profileResult.data) {
+                    responsavelNome = profileResult.data.full_name || profileResult.data.username || 'Sem responsável'
+                  }
+                }
+              }
             }
           }
 
-          // Para students, usar user_id!users, para alunos usar id!profiles
-          const userData = aluno.user_id || aluno.id
+          // Para students, usar user_data, para alunos usar dados diretos
+          const userData = aluno.user_data || aluno
           const nome = userData?.name || userData?.full_name || userData?.username || 'Aluno'
           const avatar = userData?.avatar_url || ''
 
