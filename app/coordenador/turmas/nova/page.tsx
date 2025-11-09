@@ -54,27 +54,21 @@ export default function NovaTurmaPage() {
 
       console.log('Resultado teachers:', teachersResult.error ? 'ERRO' : 'SUCESSO', teachersResult.data?.length || 0)
 
-      if (teachersResult.error) {
-        // Se erro for "does not exist", "schema cache", "PGRST205" ou RLS, tentar fallback
-        if (teachersResult.error.message?.includes('does not exist') || 
-            teachersResult.error.code === '42P01' ||
-            teachersResult.error.code === 'PGRST205' ||
-            teachersResult.error.message?.includes('schema cache') ||
-            teachersResult.error.message?.includes('permission denied') ||
-            teachersResult.error.message?.includes('row-level security')) {
-          // Fallback para professores
-          const professoresResult = await supabase
-            .from('professores')
-            .select('id')
-            .eq('status', 'ativo')
-          
-          if (!professoresResult.error && professoresResult.data) {
-            professoresIds = professoresResult.data.map((p) => p.id)
-          } else {
-            console.warn('Erro ao buscar professores (fallback):', professoresResult.error)
-          }
+      if (teachersResult.error || !teachersResult.data || teachersResult.data.length === 0) {
+        // Se erro ou sem dados, tentar fallback para professores
+        console.log('Tentando fallback para professores...')
+        const professoresResult = await supabase
+          .from('professores')
+          .select('id')
+          .eq('status', 'ativo')
+          .limit(100)
+        
+        console.log('Resultado professores (fallback):', professoresResult.error ? 'ERRO' : 'SUCESSO', professoresResult.data?.length || 0)
+        
+        if (!professoresResult.error && professoresResult.data) {
+          professoresIds = professoresResult.data.map((p) => p.id)
         } else {
-          console.warn('Erro ao buscar teachers:', teachersResult.error)
+          console.warn('Erro ao buscar professores (fallback):', professoresResult.error)
         }
       } else {
         // Se teachers funcionou, usar user_id
@@ -103,23 +97,20 @@ export default function NovaTurmaPage() {
       
       console.log('Resultado users:', usersResult.error ? 'ERRO' : 'SUCESSO', usersResult.data?.length || 0)
 
-      if (usersResult.error) {
-        if (usersResult.error.message?.includes('does not exist') || 
-            usersResult.error.code === '42P01' ||
-            usersResult.error.code === 'PGRST205' ||
-            usersResult.error.message?.includes('schema cache') ||
-            usersResult.error.message?.includes('permission denied') ||
-            usersResult.error.message?.includes('row-level security')) {
-          const profilesResult = await supabase
-            .from('profiles')
-            .select('id, full_name, username')
-            .in('id', professoresIds)
-            .eq('role', 'professor')
-          perfis = profilesResult.data
-          errPerfis = profilesResult.error
-        } else {
-          errPerfis = usersResult.error
-        }
+      if (usersResult.error || !usersResult.data || usersResult.data.length === 0) {
+        // Se erro ou sem dados, tentar fallback para profiles
+        console.log('Tentando fallback para profiles...')
+        const profilesResult = await supabase
+          .from('profiles')
+          .select('id, full_name, username')
+          .in('id', professoresIds)
+          .eq('role', 'professor')
+          .limit(100)
+        
+        console.log('Resultado profiles (fallback):', profilesResult.error ? 'ERRO' : 'SUCESSO', profilesResult.data?.length || 0)
+        
+        perfis = profilesResult.data
+        errPerfis = profilesResult.error
       } else {
         perfis = usersResult.data?.map((u: any) => ({
           id: u.id,
