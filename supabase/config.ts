@@ -1,7 +1,8 @@
 // Configuração do Supabase Client
 // Este arquivo deve ser usado no lado do cliente (browser)
+// Usa @supabase/ssr para salvar cookies que o middleware pode ler
 
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -15,13 +16,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   }
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-})
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
 
 // Tipos TypeScript para o banco de dados
 export type Database = {
