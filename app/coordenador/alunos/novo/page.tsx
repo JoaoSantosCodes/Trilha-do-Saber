@@ -52,31 +52,25 @@ export default function NovoAlunoPage() {
 
       console.log('Resultado classrooms:', classroomsResult.error ? 'ERRO' : 'SUCESSO', classroomsResult.data?.length || 0)
 
-      if (classroomsResult.error) {
-        // Se erro for "does not exist", "schema cache", "PGRST205" ou RLS, tentar fallback
-        if (classroomsResult.error.message?.includes('does not exist') || 
-            classroomsResult.error.code === '42P01' ||
-            classroomsResult.error.code === 'PGRST205' ||
-            classroomsResult.error.message?.includes('schema cache') ||
-            classroomsResult.error.message?.includes('permission denied') ||
-            classroomsResult.error.message?.includes('row-level security')) {
-          // Fallback para turmas
-          const turmasResult = await supabase
-            .from('turmas')
-            .select('id, nome')
-            .eq('ativo', true)
-            .order('nome')
-          
-          if (!turmasResult.error && turmasResult.data) {
-            turmasList = turmasResult.data.map((t: any) => ({
-              id: t.id,
-              nome: t.nome || t.name || 'Turma',
-            }))
-          } else {
-            console.warn('Erro ao buscar turmas (fallback):', turmasResult.error)
-          }
+      if (classroomsResult.error || !classroomsResult.data || classroomsResult.data.length === 0) {
+        // Se erro ou sem dados, tentar fallback para turmas
+        console.log('Tentando fallback para turmas...')
+        const turmasResult = await supabase
+          .from('turmas')
+          .select('id, nome')
+          .eq('ativo', true)
+          .order('nome')
+          .limit(100)
+        
+        console.log('Resultado turmas (fallback):', turmasResult.error ? 'ERRO' : 'SUCESSO', turmasResult.data?.length || 0)
+        
+        if (!turmasResult.error && turmasResult.data) {
+          turmasList = turmasResult.data.map((t: any) => ({
+            id: t.id,
+            nome: t.nome || t.name || 'Turma',
+          }))
         } else {
-          console.warn('Erro ao buscar classrooms:', classroomsResult.error)
+          console.warn('Erro ao buscar turmas (fallback):', turmasResult.error)
         }
       } else {
         // Se classrooms funcionou, usar name
