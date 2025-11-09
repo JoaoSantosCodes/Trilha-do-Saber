@@ -8,7 +8,7 @@
 **URL**: `/coordenador/turmas/nova`
 
 **Resultados**:
-- ⚠️ Select de professores não aparece
+- ⚠️ Select de professores ainda não aparece
 - ⚠️ Apenas ícone de refresh (loading) visível
 - ⚠️ Professores não carregam
 
@@ -16,9 +16,9 @@
 - (A ser verificado após reiniciar servidor)
 
 **Causa Provável**:
-- Servidor Next.js não está rodando corretamente
 - RLS ainda bloqueando acesso mesmo com verificação de sessão
 - Token JWT pode não estar sendo enviado corretamente
+- Role do usuário pode não estar correto
 
 ---
 
@@ -28,7 +28,7 @@
 **URL**: `/coordenador/alunos/novo`
 
 **Resultados**:
-- ⚠️ Select de turmas não aparece
+- ⚠️ Select de turmas ainda não aparece
 - ⚠️ Apenas ícone de refresh (loading) visível
 - ⚠️ Turmas não carregam
 
@@ -36,9 +36,9 @@
 - (A ser verificado após reiniciar servidor)
 
 **Causa Provável**:
-- Servidor Next.js não está rodando corretamente
 - RLS ainda bloqueando acesso mesmo com verificação de sessão
 - Token JWT pode não estar sendo enviado corretamente
+- Role do usuário pode não estar correto
 
 ---
 
@@ -60,16 +60,26 @@
 
 ## 🔍 Análise dos Problemas
 
-### Problema Principal: Servidor Next.js Não Está Rodando
+### Problema Principal: RLS Bloqueando Acesso
 
 **Sintomas**:
-- Páginas retornam 404 ou não carregam completamente
-- Erros ao carregar recursos estáticos (`_next/static/...`)
-- Selects não aparecem (apenas ícone de refresh)
+- Queries retornam 404 mesmo com políticas RLS corretas
+- Verificação de sessão adicionada, mas problema persiste
+- Tabelas existem e têm dados (6 professores, 7 turmas)
+- Selects não aparecem (apenas loading)
 
-**Causa Provável**:
-- Cache do Next.js foi deletado, mas servidor não foi reiniciado
-- Servidor precisa ser reiniciado para reconstruir cache
+**Causas Possíveis**:
+1. **Token JWT não está sendo enviado corretamente**
+   - Verificar se `createBrowserClient` está enviando token automaticamente
+   - Verificar se sessão está sendo persistida corretamente
+
+2. **Role do usuário não está correto**
+   - Verificar se usuário logado tem role `coordinator` na tabela `users`
+   - Verificar se `auth.uid()` retorna o ID correto
+
+3. **Políticas RLS não estão funcionando corretamente**
+   - Verificar se políticas estão verificando `users.role = 'coordinator'`
+   - Verificar se `auth.uid()` está sendo usado corretamente nas políticas
 
 ---
 
@@ -77,59 +87,56 @@
 
 | Página | Status | Problema | Solução Aplicada |
 |--------|--------|----------|------------------|
+| Login | ✅ | Nenhum | - |
 | Criar Professor | ✅ | Botão desabilitado | Optional chaining |
-| Criar Turma | ⚠️ | Professores não carregam | Logs de debug adicionados |
-| Criar Aluno | ⚠️ | Turmas não carregam | Logs de debug adicionados |
+| Criar Turma | ⚠️ | Professores não carregam | Verificação de sessão + logs (não resolveu) |
+| Criar Aluno | ⚠️ | Turmas não carregam | Verificação de sessão + logs (não resolveu) |
 
 ---
 
 ## 🔧 Próximos Passos
 
-1. ⏳ **Reiniciar servidor Next.js**:
+1. ⏳ **Reiniciar servidor Next.js** (CRÍTICO)
    ```bash
-   # Parar servidor atual (Ctrl+C)
-   # Depois reiniciar:
    npm run dev
    ```
 
-2. ⏳ **Testar novamente após reiniciar**:
-   - Fazer login como coordenador
-   - Navegar para `/coordenador/turmas/nova`
-   - Verificar console para logs de debug
-   - Verificar se professores carregam
-
-3. ⏳ **Verificar logs no console**:
-   - Os logs de debug mostrarão onde está falhando
-   - Se aparecer "ERRO", verificar qual é o erro específico
-   - Se aparecer "SUCESSO", verificar quantos registros foram encontrados
+2. ⏳ Verificar logs de debug no console após reiniciar
+3. ⏳ Verificar se token JWT está sendo enviado corretamente
+4. ⏳ Verificar role do usuário logado na tabela `users`
+5. ⏳ Testar políticas RLS diretamente no SQL
 
 ---
 
 ## 📝 Observações
 
-- **Servidor**: Precisa ser reiniciado para reconstruir cache
-- **Logs de Debug**: Adicionados para facilitar identificação do problema
-- **Criar Professor**: Funcionando corretamente após correção
-- **Criar Turma/Aluno**: Problema persiste, mas logs de debug ajudarão a identificar
+- **Servidor**: Precisa ser reiniciado para aplicar correções
+- **Logs**: Adicionados para facilitar debug
+- **RLS**: Ainda pode ser o problema principal
+- **Selects**: Não aparecem porque loading nunca termina
 
 ---
 
-## 🚀 Como Resolver
+## 🚀 Como Testar Após Reiniciar Servidor
 
-1. **Reiniciar servidor Next.js**:
-   ```bash
-   npm run dev
-   ```
+1. **Fazer login como coordenador**:
+   - Email: `coordenador1@teste.com`
+   - Senha: `teste123`
 
-2. **Testar novamente**:
-   - Fazer login como coordenador
+2. **Testar criar turma**:
    - Navegar para `/coordenador/turmas/nova`
-   - Verificar console para logs de debug
-   - Verificar se professores carregam
+   - Abrir console do navegador (F12)
+   - Verificar logs de debug:
+     - `Buscando professores de teachers...`
+     - `Resultado teachers: SUCESSO/ERRO X`
+     - `Buscando perfis de professores... X IDs`
+     - `Resultado users: SUCESSO/ERRO X`
+   - Verificar se professores carregam no select
 
-3. **Se ainda não funcionar**:
-   - Verificar logs no console
-   - Verificar se token JWT está sendo enviado
-   - Verificar se role do usuário está correto
-   - Verificar políticas RLS no banco de dados
-
+3. **Testar criar aluno**:
+   - Navegar para `/coordenador/alunos/novo`
+   - Abrir console do navegador (F12)
+   - Verificar logs de debug:
+     - `Buscando turmas de classrooms...`
+     - `Resultado classrooms: SUCESSO/ERRO X`
+   - Verificar se turmas carregam no select
