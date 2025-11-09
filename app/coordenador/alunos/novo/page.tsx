@@ -26,16 +26,52 @@ export default function NovoAlunoPage() {
   const fetchTurmas = async () => {
     try {
       setLoadingTurmas(true)
-      const { data, error: err } = await supabase
-        .from('turmas')
-        .select('id, nome')
-        .eq('ativo', true)
-        .order('nome')
+      
+      // Tentar classrooms primeiro, depois turmas (fallback)
+      let turmasList: { id: string; nome: string }[] = []
+      
+      const classroomsResult = await supabase
+        .from('classrooms')
+        .select('id, name')
+        .eq('is_active', true)
+        .order('name')
 
-      if (err) throw err
-      setTurmas(data || [])
+      if (classroomsResult.error) {
+        // Se erro for "does not exist" ou RLS, tentar fallback
+        if (classroomsResult.error.message?.includes('does not exist') || 
+            classroomsResult.error.code === '42P01' ||
+            classroomsResult.error.message?.includes('permission denied') ||
+            classroomsResult.error.message?.includes('row-level security')) {
+          // Fallback para turmas
+          const turmasResult = await supabase
+            .from('turmas')
+            .select('id, nome')
+            .eq('ativo', true)
+            .order('nome')
+          
+          if (!turmasResult.error && turmasResult.data) {
+            turmasList = turmasResult.data.map((t: any) => ({
+              id: t.id,
+              nome: t.nome || t.name || 'Turma',
+            }))
+          } else {
+            console.warn('Erro ao buscar turmas (fallback):', turmasResult.error)
+          }
+        } else {
+          console.warn('Erro ao buscar classrooms:', classroomsResult.error)
+        }
+      } else {
+        // Se classrooms funcionou, usar name
+        turmasList = classroomsResult.data?.map((c: any) => ({
+          id: c.id,
+          nome: c.name || c.nome || 'Turma',
+        })) || []
+      }
+
+      setTurmas(turmasList)
     } catch (err: any) {
       console.error('Erro ao buscar turmas:', err)
+      setTurmas([])
     } finally {
       setLoadingTurmas(false)
     }

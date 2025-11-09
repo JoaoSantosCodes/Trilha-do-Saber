@@ -38,8 +38,11 @@ export default function NovaTurmaPage() {
         .select('user_id')
 
       if (teachersResult.error) {
-        // Se erro for "does not exist", tentar fallback
-        if (teachersResult.error.message?.includes('does not exist') || teachersResult.error.code === '42P01') {
+        // Se erro for "does not exist" ou RLS, tentar fallback
+        if (teachersResult.error.message?.includes('does not exist') || 
+            teachersResult.error.code === '42P01' ||
+            teachersResult.error.message?.includes('permission denied') ||
+            teachersResult.error.message?.includes('row-level security')) {
           // Fallback para professores
           const professoresResult = await supabase
             .from('professores')
@@ -48,6 +51,8 @@ export default function NovaTurmaPage() {
           
           if (!professoresResult.error && professoresResult.data) {
             professoresIds = professoresResult.data.map((p) => p.id)
+          } else {
+            console.warn('Erro ao buscar professores (fallback):', professoresResult.error)
           }
         } else {
           console.warn('Erro ao buscar teachers:', teachersResult.error)
@@ -58,7 +63,9 @@ export default function NovaTurmaPage() {
       }
 
       if (professoresIds.length === 0) {
+        console.warn('Nenhum professor encontrado')
         setProfessores([])
+        setLoadingProfessores(false)
         return
       }
 
@@ -74,7 +81,10 @@ export default function NovaTurmaPage() {
         .eq('role', 'teacher')
 
       if (usersResult.error) {
-        if (usersResult.error.message?.includes('does not exist') || usersResult.error.code === '42P01') {
+        if (usersResult.error.message?.includes('does not exist') || 
+            usersResult.error.code === '42P01' ||
+            usersResult.error.message?.includes('permission denied') ||
+            usersResult.error.message?.includes('row-level security')) {
           const profilesResult = await supabase
             .from('profiles')
             .select('id, full_name, username')
