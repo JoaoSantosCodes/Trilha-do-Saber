@@ -30,9 +30,12 @@ export default function NovaTurmaPage() {
       setLoadingProfessores(true)
       
       // Verificar se há sessão válida antes de fazer queries
-      const { data: { session } } = await supabase.auth.getSession()
+      console.log('Verificando sessão...')
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      console.log('Sessão:', session ? 'EXISTE' : 'NÃO EXISTE', 'Token:', session?.access_token ? 'EXISTE' : 'NÃO EXISTE')
+      
       if (!session || !session.access_token) {
-        console.warn('Nenhuma sessão válida encontrada')
+        console.warn('Nenhuma sessão válida encontrada', sessionError)
         setProfessores([])
         setLoadingProfessores(false)
         return
@@ -140,11 +143,13 @@ export default function NovaTurmaPage() {
       } else {
         console.log('Professores formatados:', professoresFormatados.length, professoresFormatados)
       }
+      console.log('Definindo professores:', professoresFormatados.length)
       setProfessores(professoresFormatados)
     } catch (err: any) {
       console.error('Erro ao buscar professores:', err)
       setProfessores([])
     } finally {
+      console.log('Finalizando busca de professores - desativando loading')
       setLoadingProfessores(false)
     }
   }

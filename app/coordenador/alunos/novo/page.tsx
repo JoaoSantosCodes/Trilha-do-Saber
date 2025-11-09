@@ -28,9 +28,12 @@ export default function NovoAlunoPage() {
       setLoadingTurmas(true)
       
       // Verificar se há sessão válida antes de fazer queries
-      const { data: { session } } = await supabase.auth.getSession()
+      console.log('Verificando sessão...')
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      console.log('Sessão:', session ? 'EXISTE' : 'NÃO EXISTE', 'Token:', session?.access_token ? 'EXISTE' : 'NÃO EXISTE')
+      
       if (!session || !session.access_token) {
-        console.warn('Nenhuma sessão válida encontrada')
+        console.warn('Nenhuma sessão válida encontrada', sessionError)
         setTurmas([])
         setLoadingTurmas(false)
         return
@@ -88,11 +91,13 @@ export default function NovoAlunoPage() {
       } else {
         console.log('Turmas encontradas:', turmasList.length, turmasList)
       }
+      console.log('Definindo turmas:', turmasList.length)
       setTurmas(turmasList)
     } catch (err: any) {
       console.error('Erro ao buscar turmas:', err)
       setTurmas([])
     } finally {
+      console.log('Finalizando busca de turmas - desativando loading')
       setLoadingTurmas(false)
     }
   }
