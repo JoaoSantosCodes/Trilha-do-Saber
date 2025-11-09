@@ -319,9 +319,10 @@ export function useCoordenador() {
       // Tentar teachers primeiro, depois professores (fallback)
       let professores: any[] = []
       
+      // Buscar teachers sem join primeiro
       const teachersResult = await supabase
         .from('teachers')
-        .select('*, user_id!users(name, email, avatar_url)')
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (teachersResult.error) {
@@ -329,7 +330,7 @@ export function useCoordenador() {
         if (teachersResult.error.message?.includes('does not exist') || teachersResult.error.code === '42P01') {
           const professoresResult = await supabase
             .from('professores')
-            .select('*, id!profiles(full_name, username, avatar_url)')
+            .select('*')
             .order('created_at', { ascending: false })
           
           if (professoresResult.error) {
