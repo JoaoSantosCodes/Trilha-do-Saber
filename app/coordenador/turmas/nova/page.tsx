@@ -88,6 +88,8 @@ export default function NovaTurmaPage() {
       if (usersResult.error) {
         if (usersResult.error.message?.includes('does not exist') || 
             usersResult.error.code === '42P01' ||
+            usersResult.error.code === 'PGRST205' ||
+            usersResult.error.message?.includes('schema cache') ||
             usersResult.error.message?.includes('permission denied') ||
             usersResult.error.message?.includes('row-level security')) {
           const profilesResult = await supabase
