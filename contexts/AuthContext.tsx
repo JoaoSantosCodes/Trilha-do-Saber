@@ -11,7 +11,7 @@ interface AuthContextType {
   session: Session | null
   profile: any | null
   loading: boolean
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>
+  signIn: (email: string, password: string) => Promise<{ user: User | null; session: Session | null; error: string | null }>
   signUp: (data: {
     email: string
     password: string
@@ -131,9 +131,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleSignIn = async (email: string, password: string) => {
     const result = await signIn({ email, password })
     if (result.error) {
-      return { error: result.error }
+      return { user: null, session: null, error: result.error }
     }
-    return { error: null }
+    return { user: result.user, session: result.session, error: null }
   }
 
   const handleSignUp = async (data: {
