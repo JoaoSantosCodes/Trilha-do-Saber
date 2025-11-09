@@ -170,7 +170,11 @@ export async function signUp(data: SignUpData) {
 /**
  * Faz login do usuário
  */
-export async function signIn(data: SignInData) {
+export async function signIn(data: SignInData): Promise<{
+  user: any | null
+  session: any | null
+  error: string | null
+}> {
   try {
     const { data: authData, error } = await supabase.auth.signInWithPassword({
       email: data.email,

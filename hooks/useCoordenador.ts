@@ -49,17 +49,25 @@ export function useCoordenador() {
         .from('teachers')
         .select('*', { count: 'exact', head: true })
 
-      if (teachersResult.error && teachersResult.error.message?.includes('does not exist')) {
-        const professoresResult = await supabase
-          .from('professores')
-          .select('*', { count: 'exact', head: true })
-        totalProfessores = professoresResult.count || 0
-        
-        const professoresAtivosResult = await supabase
-          .from('professores')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'ativo')
-        professoresAtivos = professoresAtivosResult.count || 0
+      if (teachersResult.error) {
+        // Se erro for "does not exist", tentar fallback
+        if (teachersResult.error.message?.includes('does not exist') || teachersResult.error.code === '42P01') {
+          const professoresResult = await supabase
+            .from('professores')
+            .select('*', { count: 'exact', head: true })
+          totalProfessores = professoresResult.count || 0
+          
+          const professoresAtivosResult = await supabase
+            .from('professores')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'ativo')
+          professoresAtivos = professoresAtivosResult.count || 0
+        } else {
+          // Outro erro (RLS, etc) - logar mas não quebrar
+          console.warn('Erro ao buscar professores:', teachersResult.error)
+          totalProfessores = 0
+          professoresAtivos = 0
+        }
       } else {
         totalProfessores = teachersResult.count || 0
         professoresAtivos = totalProfessores // teachers não tem status, considerar todos ativos
@@ -88,11 +96,18 @@ export function useCoordenador() {
         .from('students')
         .select('*', { count: 'exact', head: true })
 
-      if (studentsResult.error && studentsResult.error.message?.includes('does not exist')) {
-        const alunosResult = await supabase
-          .from('alunos')
-          .select('*', { count: 'exact', head: true })
-        totalAlunos = alunosResult.count || 0
+      if (studentsResult.error) {
+        // Se erro for "does not exist", tentar fallback
+        if (studentsResult.error.message?.includes('does not exist') || studentsResult.error.code === '42P01') {
+          const alunosResult = await supabase
+            .from('alunos')
+            .select('*', { count: 'exact', head: true })
+          totalAlunos = alunosResult.count || 0
+        } else {
+          // Outro erro (RLS, etc) - logar mas não quebrar
+          console.warn('Erro ao buscar alunos:', studentsResult.error)
+          totalAlunos = 0
+        }
       } else {
         totalAlunos = studentsResult.count || 0
       }
